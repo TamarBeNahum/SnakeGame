@@ -17,11 +17,13 @@ let redDirection = -1; // -1 for up, 1 for down
 
 let bombs = [];
 
-// Load the apple images
+// Load the apple and bomb images
 const yellowAppleImg = new Image();
 yellowAppleImg.src = 'yellowA.png'; // Replace with the actual path to the yellow apple image
 const redAppleImg = new Image();
 redAppleImg.src = 'RedA.png'; // Replace with the actual path to the red apple image
+const bombImg = new Image();
+bombImg.src = 'bomb.png'; // Replace with the actual path to the bomb image
 
 function aStar(start, target) {
     let openList = [];
@@ -137,8 +139,7 @@ function draw() {
     ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
 
     for (let bomb of bombs) {
-        ctx.fillStyle = "black";
-        ctx.fillRect(bomb.x, bomb.y, box, box);
+        ctx.drawImage(bombImg, bomb.x, bomb.y, box, box);
     }
 
     let snakeX = snake[0].x;
@@ -177,20 +178,24 @@ function draw() {
         alert("Game Over");
     } 
     else if (collision(newHead, snake)) {
-        alert("Game Over_collision");
+        //alert("Game Over_collision");
         clearInterval(game);
     }
 
     snake.unshift(newHead);
-
-     // Stop the game when score reaches 20
-     if (score >= 40) {
-        setTimeout(function () {
-            clearInterval(game);
-            alert("Congratulations! You reached score 20.");
-        }, 600); // 0.3 seconds delay
+    
+    // Add bombs when score is divisible by 5
+    if (score % 5 === 0 && score !== 0 && bombs.length < score / 5) {
+        bombs.push(generateBomb());
     }
 
+    // Add 2 bombs when score reaches 30
+    if (score === 30 && bombs.length < (score / 5) + 2) {
+        bombs.push(generateBomb());
+        bombs.push(generateBomb());
+    }
+
+    // Stop the game when score reaches 40
     if (score >= 40) {
         clearInterval(game);
         alert("Congratulations! You reached score 40.");
@@ -204,10 +209,6 @@ function draw() {
     ctx.fillStyle = "green";
     ctx.font = "30px Verdana";
     ctx.fillText(score, 2 * box, 1.6 * box);
-
-    if (score % 5 === 0 && score !== 0 && bombs.length <= score / 5) {
-        bombs.push(generateBomb());
-    }
 }
 
 function moveYellowFood() {
@@ -220,7 +221,7 @@ function moveYellowFood() {
     if (newX < 0) newX = 0;
     if (newX >= 18 * box) newX = (18 * box) - box;
 
-    if (isFoodOnSnake(newX, yellowFood.y)) {
+    if (isFoodOnSnake(newX, yellowFood.y) || isFoodOnBomb(newX, yellowFood.y)) {
         yellowMoveStep++;
         return;
     }
@@ -239,7 +240,7 @@ function moveRedFood() {
     if (newY < 0) newY = 0;
     if (newY >= 18 * box) newY = (18 * box) - box;
 
-    if (isFoodOnSnake(redFood.x, newY)) {
+    if (isFoodOnSnake(redFood.x, newY) || isFoodOnBomb(redFood.x, newY)) {
         redMoveStep++;
         return;
     }
@@ -303,7 +304,7 @@ function generateBomb() {
 }
 
 function isCollisionWithFood(head) {
-    return (head.x === yellowFood.x && head.y === yellowFood.y) || (head.x === redFood.x && head.y === redFood.y);
+    return (head.x === yellowFood.x && head.y === redFood.y) || (head.x === redFood.x && head.y === redFood.y);
 }
 
 yellowFood = generateFood();
