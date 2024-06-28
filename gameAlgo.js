@@ -178,15 +178,15 @@ function draw() {
         alert("Game Over");
     } 
     else if (collision(newHead, snake)) {
-        //alert("Game Over_collision");
         clearInterval(game);
     }
 
     snake.unshift(newHead);
-  // Add bombs when score is divisible by 5
-  if (score % 5 === 0 && score !== 0) {
-    bombs.push(generateBomb());
-}
+  
+    // Add bombs when score is divisible by 5
+    if (score % 5 === 0 && score !== 0 && bombs.length < score / 5) {
+        bombs.push(generateBomb());
+    }
 
     // Add 2 bombs when score reaches 30
     if (score === 30 && bombs.length < (score / 5) + 2) {
