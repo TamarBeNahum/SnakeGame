@@ -177,23 +177,21 @@ function draw() {
         clearInterval(game);
         alert("Game Over");
     } 
-    else if (collision(newHead, snake)) {
-        clearInterval(game);
-    }
 
     snake.unshift(newHead);
   
-    // Add bombs when score is divisible by 5
     if (score % 5 === 0 && score !== 0 && bombs.length < score / 5) {
-        bombs.push(generateBomb());
+        while (bombs.length < score / 5) {
+            bombs.push(generateBomb());
+        }
     }
-
-    // Add 2 bombs when score reaches 30
+    
+    // הוספת 2 פצצות כאשר הציון מגיע ל-30
     if (score === 30 && bombs.length < (score / 5) + 2) {
         bombs.push(generateBomb());
         bombs.push(generateBomb());
     }
-
+    
     // Stop the game when score reaches 40
     if (score >= 40) {
         clearInterval(game);
@@ -275,6 +273,7 @@ function isBombOnBomb(bombX, bombY) {
     return false;
 }
 
+
 function collision(head, array) {
     for (let i = 0; i < array.length; i++) {
         if (head.x === array[i].x && head.y === array[i].y) {
@@ -302,8 +301,9 @@ function generateBomb() {
     return { x: bombX, y: bombY };
 }
 
+
 function isCollisionWithFood(head) {
-    return (head.x === yellowFood.x && head.y === redFood.y) || (head.x === redFood.x && head.y === redFood.y);
+    return (head.x === yellowFood.x && head.y === yellowFood.y) || (head.x === redFood.x && head.y === redFood.y);
 }
 
 yellowFood = generateFood();
