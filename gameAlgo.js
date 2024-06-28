@@ -183,12 +183,13 @@ function draw() {
     }
 
     snake.unshift(newHead);
-    // Add bombs when score is divisible by 5
-    if (score % 5 === 0 && score !== 0) {
+  // Add bombs when score is divisible by 5
+  if (score % 5 === 0 && score !== 0) {
     bombs.push(generateBomb());
-    }
+}
+
     // Add 2 bombs when score reaches 30
-    if (score === 30) {
+    if (score === 30 && bombs.length < (score / 5) + 2) {
         bombs.push(generateBomb());
         bombs.push(generateBomb());
     }
