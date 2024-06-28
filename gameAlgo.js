@@ -107,7 +107,17 @@ function heuristic(node, target) {
 function draw() {
     ctx.fillStyle = "HoneyDew";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const rows = canvas.height / box;
+    const cols = canvas.width / box;
 
+    // Draw checkered background
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            ctx.fillStyle = (row + col) % 2 === 0 ? "#A3D04A" : "#A9DA4D";
+            ctx.fillRect(col * box, row * box, box, box);
+        }
+    }
+    
     for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? "green" : "white";
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
