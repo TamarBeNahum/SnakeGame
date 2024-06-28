@@ -15,6 +15,12 @@ let redMoveStep = 0;
 let blueDirection = -1; // -1 for left, 1 for right
 let redDirection = -1; // -1 for up, 1 for down
 
+// Load the apple images
+const greenAppleImg = new Image();
+greenAppleImg.src = 'GreenA.png'; // Replace with the actual path to the green apple image
+const redAppleImg = new Image();
+redAppleImg.src = 'RedA.png'; // Replace with the actual path to the red apple image
+
 // Define the A* algorithm
 function aStar(start, target) {
     let openList = [];
@@ -99,7 +105,7 @@ function heuristic(node, target) {
 }
 
 function draw() {
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "HoneyDew";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     for (let i = 0; i < snake.length; i++) {
@@ -109,11 +115,8 @@ function draw() {
         ctx.strokeRect(snake[i].x, snake[i].y, box, box);
     }
 
-    ctx.fillStyle = "blue";
-    ctx.fillRect(blueFood.x, blueFood.y, box, box);
-
-    ctx.fillStyle = "red";
-    ctx.fillRect(redFood.x, redFood.y, box, box);
+    ctx.drawImage(greenAppleImg, blueFood.x, blueFood.y, box, box);
+    ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
 
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
@@ -159,9 +162,14 @@ function draw() {
         moveRedFood();
     }
 
-    ctx.fillStyle = "white";
-    ctx.font = "45px Changa one";
+    ctx.fillStyle = "green";
+    ctx.font = "45px Verdana";
     ctx.fillText(score, 2 * box, 1.6 * box);
+    
+    // Draw the title
+    ctx.fillStyle = "green";
+    ctx.font = "30px Verdana";
+    ctx.fillText("Snake Game", canvas.width / 2 - 100, 30);
 }
 
 function moveBlueFood() {
