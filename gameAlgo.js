@@ -17,7 +17,7 @@ let redDirection = -1; // -1 for up, 1 for down
 
 // Load the apple images
 const yellowAppleImg = new Image();
-yellowAppleImg.src = 'yellowA.png'; // Replace with the actual path to the green apple image
+yellowAppleImg.src = 'yellowA.png'; // Replace with the actual path to the yellow apple image
 const redAppleImg = new Image();
 redAppleImg.src = 'RedA.png'; // Replace with the actual path to the red apple image
 
@@ -125,6 +125,15 @@ function draw() {
         ctx.strokeRect(snake[i].x, snake[i].y, box, box);
     }
 
+    // Add eyes to the snake's head
+    if (snake.length > 0) {
+        ctx.fillStyle = "black";
+        ctx.beginPath();
+        ctx.arc(snake[0].x + box / 4, snake[0].y + box / 4, box / 8, 0, Math.PI * 2, true);
+        ctx.arc(snake[0].x + 3 * box / 4, snake[0].y + box / 4, box / 8, 0, Math.PI * 2, true);
+        ctx.fill();
+    }
+
     ctx.drawImage(yellowAppleImg, blueFood.x, blueFood.y, box, box);
     ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
 
@@ -173,13 +182,8 @@ function draw() {
     }
 
     ctx.fillStyle = "green";
-    ctx.font = "45px Verdana";
-    ctx.fillText(score, 2 * box, 1.6 * box);
-    
-    // Draw the title
-    ctx.fillStyle = "green";
     ctx.font = "30px Verdana";
-    ctx.fillText("Snake Game", canvas.width / 2 - 100, 30);
+    ctx.fillText(score, 2 * box, 1.6 * box);
 }
 
 function moveBlueFood() {
@@ -235,4 +239,4 @@ function isCollisionWithFood(head) {
     return (head.x === blueFood.x && head.y === blueFood.y) || (head.x === redFood.x && head.y === redFood.y);
 }
 
-let game = setInterval(draw, 200);
+let game = setInterval(draw, 300);
