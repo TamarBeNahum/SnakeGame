@@ -117,7 +117,7 @@ function draw() {
             ctx.fillRect(col * box, row * box, box, box);
         }
     }
-    
+
     for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? "green" : "white";
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
@@ -150,7 +150,7 @@ function draw() {
         snakeX = path[0].x;
         snakeY = path[0].y;
     }
-    
+
 
     if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
         score += 3;
@@ -166,12 +166,12 @@ function draw() {
 
     if (
         snakeX < 0 || snakeX >= 18 * box ||
-        snakeY < 0 || snakeY >= 18 * box || 
+        snakeY < 0 || snakeY >= 18 * box ||
         collision(newHead, snake)
     ) {
         clearInterval(game);
         alert("Game Over");
-    } 
+    }
     else if (collision(newHead, snake)) {
         alert("Game Over_collision");
         clearInterval(game);
@@ -180,9 +180,11 @@ function draw() {
     snake.unshift(newHead);
 
     // Stop the game when score reaches 40
-    if (score >= 20) {
-        clearInterval(game);
-        alert("Congratulations! You reached score 40.");
+    if (score >= 15) {
+        setTimeout(function () {
+            clearInterval(game);
+            alert("Congratulations! You reached score 40.");
+        }, 600); // 0.3 seconds delay
     }
 
     // Move foods if the snake's length is 10 or more
@@ -195,7 +197,7 @@ function draw() {
     ctx.font = "30px Verdana";
     ctx.fillText(score, 2 * box, 1.6 * box);
 
-    
+
 }
 
 // function moveYellowFood() {
@@ -294,14 +296,14 @@ function generateFood() {
     return { x: foodX, y: foodY };
 }
 
-function isFoodOnSnake(foodX, foodY) {
-    for (let i = 0; i < snake.length; i++) {
-        if (snake[i].x === foodX && snake[i].y === foodY) {
-            return true;
-        }
-    }
-    return false;
-}
+// function isFoodOnSnake(foodX, foodY) {
+//     for (let i = 0; i < snake.length; i++) {
+//         if (snake[i].x === foodX && snake[i].y === foodY) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
 function isCollisionWithFood(head) {
     return (head.x === yellowFood.x && head.y === yellowFood.y) || (head.x === redFood.x && head.y === redFood.y);
