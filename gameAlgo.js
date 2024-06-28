@@ -150,6 +150,7 @@ function draw() {
         snakeX = path[0].x;
         snakeY = path[0].y;
     }
+    
 
     if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
         score += 3;
@@ -165,15 +166,24 @@ function draw() {
 
     if (
         snakeX < 0 || snakeX >= 18 * box ||
-        snakeY < 0 || snakeY >= 18 * box
+        snakeY < 0 || snakeY >= 18 * box || 
+        collision(newHead, snake)
     ) {
         clearInterval(game);
         alert("Game Over");
-    } else if (collision(newHead, snake)) {
+    } 
+    else if (collision(newHead, snake)) {
         alert("Game Over_collision");
+        clearInterval(game);
     }
 
     snake.unshift(newHead);
+
+    // Stop the game when score reaches 40
+    if (score >= 20) {
+        clearInterval(game);
+        alert("Congratulations! You reached score 40.");
+    }
 
     // Move foods if the snake's length is 10 or more
     if (score >= 10) {
@@ -184,29 +194,86 @@ function draw() {
     ctx.fillStyle = "green";
     ctx.font = "30px Verdana";
     ctx.fillText(score, 2 * box, 1.6 * box);
+
+    
 }
+
+// function moveYellowFood() {
+//     if (yellowMoveStep === 0 || yellowMoveStep === 2) {
+//         yellowDirection = -yellowDirection;
+//         yellowMoveStep = 0;
+//     }
+//     yellowFood.x += yellowDirection * box;
+//     yellowMoveStep++;
+//     if (yellowFood.x < 0) yellowFood.x = 0;
+//     if (yellowFood.x >= 18 * box) yellowFood.x = (18 * box) - box;
+// }
 
 function moveYellowFood() {
     if (yellowMoveStep === 0 || yellowMoveStep === 2) {
         yellowDirection = -yellowDirection;
         yellowMoveStep = 0;
     }
-    yellowFood.x += yellowDirection * box;
+    let newX = yellowFood.x + yellowDirection * box;
+
+    // Ensure food stays within bounds
+    if (newX < 0) newX = 0;
+    if (newX >= 18 * box) newX = (18 * box) - box;
+
+    // Check if new position collides with the snake
+    if (isFoodOnSnake(newX, yellowFood.y)) {
+        yellowMoveStep++;
+        return; // Stay in the current position if it collides
+    }
+
+    yellowFood.x = newX;
     yellowMoveStep++;
-    if (yellowFood.x < 0) yellowFood.x = 0;
-    if (yellowFood.x >= 18 * box) yellowFood.x = (18 * box) - box;
 }
+
+
+// function moveRedFood() {
+//     if (redMoveStep === 0 || redMoveStep === 2) {
+//         redDirection = -redDirection;
+//         redMoveStep = 0;
+//     }
+//     redFood.y += redDirection * box;
+//     redMoveStep++;
+//     if (redFood.y < 0) redFood.y = 0;
+//     if (redFood.y >= 18 * box) redFood.y = (18 * box) - box;
+// }
 
 function moveRedFood() {
     if (redMoveStep === 0 || redMoveStep === 2) {
         redDirection = -redDirection;
         redMoveStep = 0;
     }
-    redFood.y += redDirection * box;
+    let newY = redFood.y + redDirection * box;
+
+    // Ensure food stays within bounds
+    if (newY < 0) newY = 0;
+    if (newY >= 18 * box) newY = (18 * box) - box;
+
+    // Check if new position collides with the snake
+    if (isFoodOnSnake(redFood.x, newY)) {
+        redMoveStep++;
+        return; // Stay in the current position if it collides
+    }
+
+    redFood.y = newY;
     redMoveStep++;
-    if (redFood.y < 0) redFood.y = 0;
-    if (redFood.y >= 18 * box) redFood.y = (18 * box) - box;
 }
+
+// Checks if the given coordinates areon the snake's body - 
+// ensure that the food isn't collide with the snake
+function isFoodOnSnake(foodX, foodY) {
+    for (let i = 0; i < snake.length; i++) {
+        if (snake[i].x === foodX && snake[i].y === foodY) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 function collision(head, array) {
     for (let i = 0; i < array.length; i++) {
@@ -217,6 +284,7 @@ function collision(head, array) {
     return false;
 }
 
+// ensure that the new food's position is not to on the snake's body
 function generateFood() {
     let foodX, foodY;
     do {
