@@ -5,14 +5,14 @@ const box = 32;
 let snake = [];
 snake[0] = { x: 9 * box, y: 10 * box };
 
-let blueFood = generateFood();
+let yellowFood = generateFood();
 let redFood = generateFood();
 
 let score = 0;
 
-let blueMoveStep = 0;
+let yellowMoveStep = 0;
 let redMoveStep = 0;
-let blueDirection = -1; // -1 for left, 1 for right
+let yellowDirection = -1; // -1 for left, 1 for right
 let redDirection = -1; // -1 for up, 1 for down
 
 // Load the apple images
@@ -121,7 +121,7 @@ function draw() {
     for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? "green" : "white";
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
-        ctx.strokeStyle = "red";
+        ctx.strokeStyle = "green";
         ctx.strokeRect(snake[i].x, snake[i].y, box, box);
     }
 
@@ -134,15 +134,15 @@ function draw() {
         ctx.fill();
     }
 
-    ctx.drawImage(yellowAppleImg, blueFood.x, blueFood.y, box, box);
+    ctx.drawImage(yellowAppleImg, yellowFood.x, yellowFood.y, box, box);
     ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
 
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
 
-    let blueDistance = heuristic(snake[0], blueFood);
+    let blueDistance = heuristic(snake[0], yellowFood);
     let redDistance = heuristic(snake[0], redFood);
-    let target = blueDistance <= redDistance ? blueFood : redFood;
+    let target = blueDistance <= redDistance ? yellowFood : redFood;
 
     let path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, target);
 
@@ -151,9 +151,9 @@ function draw() {
         snakeY = path[0].y;
     }
 
-    if (snakeX === blueFood.x && snakeY === blueFood.y) {
+    if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
         score += 3;
-        blueFood = generateFood();
+        yellowFood = generateFood();
     } else if (snakeX === redFood.x && snakeY === redFood.y) {
         score += 1;
         redFood = generateFood();
@@ -176,8 +176,8 @@ function draw() {
     snake.unshift(newHead);
 
     // Move foods if the snake's length is 10 or more
-    if (score >= 5) {
-        moveBlueFood();
+    if (score >= 10) {
+        moveYellowFood();
         moveRedFood();
     }
 
@@ -186,19 +186,19 @@ function draw() {
     ctx.fillText(score, 2 * box, 1.6 * box);
 }
 
-function moveBlueFood() {
-    if (blueMoveStep === 0 || blueMoveStep === 3) {
-        blueDirection = -blueDirection;
-        blueMoveStep = 0;
+function moveYellowFood() {
+    if (yellowMoveStep === 0 || yellowMoveStep === 2) {
+        yellowDirection = -yellowDirection;
+        yellowMoveStep = 0;
     }
-    blueFood.x += blueDirection * box;
-    blueMoveStep++;
-    if (blueFood.x < 0) blueFood.x = 0;
-    if (blueFood.x >= 18 * box) blueFood.x = (18 * box) - box;
+    yellowFood.x += yellowDirection * box;
+    yellowMoveStep++;
+    if (yellowFood.x < 0) yellowFood.x = 0;
+    if (yellowFood.x >= 18 * box) yellowFood.x = (18 * box) - box;
 }
 
 function moveRedFood() {
-    if (redMoveStep === 0 || redMoveStep === 3) {
+    if (redMoveStep === 0 || redMoveStep === 2) {
         redDirection = -redDirection;
         redMoveStep = 0;
     }
@@ -236,7 +236,7 @@ function isFoodOnSnake(foodX, foodY) {
 }
 
 function isCollisionWithFood(head) {
-    return (head.x === blueFood.x && head.y === blueFood.y) || (head.x === redFood.x && head.y === redFood.y);
+    return (head.x === yellowFood.x && head.y === yellowFood.y) || (head.x === redFood.x && head.y === redFood.y);
 }
 
 let game = setInterval(draw, 300);
