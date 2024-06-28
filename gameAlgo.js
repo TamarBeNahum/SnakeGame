@@ -16,8 +16,8 @@ let blueDirection = -1; // -1 for left, 1 for right
 let redDirection = -1; // -1 for up, 1 for down
 
 // Load the apple images
-const greenAppleImg = new Image();
-greenAppleImg.src = 'GreenA.png'; // Replace with the actual path to the green apple image
+const yellowAppleImg = new Image();
+yellowAppleImg.src = 'yellowA.png'; // Replace with the actual path to the green apple image
 const redAppleImg = new Image();
 redAppleImg.src = 'RedA.png'; // Replace with the actual path to the red apple image
 
@@ -125,7 +125,7 @@ function draw() {
         ctx.strokeRect(snake[i].x, snake[i].y, box, box);
     }
 
-    ctx.drawImage(greenAppleImg, blueFood.x, blueFood.y, box, box);
+    ctx.drawImage(yellowAppleImg, blueFood.x, blueFood.y, box, box);
     ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
 
     let snakeX = snake[0].x;
