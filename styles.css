@@ -19,3 +19,6 @@ canvas {
     color: green;
     margin: 10px;
 }
+#gameCanvas {
+    border: 1px solid black;
+}
