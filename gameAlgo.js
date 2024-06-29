@@ -211,8 +211,8 @@ function draw() {
     collision(newHead, snake) ||
     collision(newHead, bombs)
   ) {
-    clearInterval(game);
     alert("Game Over");
+    clearInterval(game);
   }
 
   snake.unshift(newHead);
