@@ -19,295 +19,319 @@ let bombs = [];
 
 // Load the apple and bomb images
 const yellowAppleImg = new Image();
-yellowAppleImg.src = 'yellowA.png'; // Replace with the actual path to the yellow apple image
+yellowAppleImg.src = "yellowA.png"; // Replace with the actual path to the yellow apple image
 const redAppleImg = new Image();
-redAppleImg.src = 'RedA.png'; // Replace with the actual path to the red apple image
+redAppleImg.src = "RedA.png"; // Replace with the actual path to the red apple image
 const bombImg = new Image();
-bombImg.src = 'bomb.png'; // Replace with the actual path to the bomb image
+bombImg.src = "bomb.png"; // Replace with the actual path to the bomb image
 
 function aStar(start, target) {
-    let openList = [];
-    let closedList = [];
-    openList.push(start);
+  let openList = [];
+  let closedList = [];
+  openList.push(start);
 
-    while (openList.length > 0) {
-        let lowIndex = 0;
-        for (let i = 0; i < openList.length; i++) {
-            if (openList[i].f < openList[lowIndex].f) {
-                lowIndex = i;
-            }
-        }
-        let currentNode = openList[lowIndex];
-
-        if (currentNode.x === target.x && currentNode.y === target.y) {
-            let curr = currentNode;
-            let path = [];
-            while (curr.parent) {
-                path.push(curr);
-                curr = curr.parent;
-            }
-            return path.reverse();
-        }
-
-        openList.splice(lowIndex, 1);
-        closedList.push(currentNode);
-
-        let neighbors = getNeighbors(currentNode);
-        for (let neighbor of neighbors) {
-            if (inList(closedList, neighbor) || collision(neighbor, snake) || collision(neighbor, bombs)) {
-                continue;
-            }
-
-            let gScore = currentNode.g + 1;
-            let gScoreIsBest = false;
-
-            if (!inList(openList, neighbor)) {
-                gScoreIsBest = true;
-                neighbor.h = heuristic(neighbor, target);
-                openList.push(neighbor);
-            } else if (gScore < neighbor.g) {
-                gScoreIsBest = true;
-            }
-
-            if (gScoreIsBest) {
-                neighbor.parent = currentNode;
-                neighbor.g = gScore;
-                neighbor.f = neighbor.g + neighbor.h;
-            }
-        }
+  while (openList.length > 0) {
+    let lowIndex = 0;
+    for (let i = 0; i < openList.length; i++) {
+      if (openList[i].f < openList[lowIndex].f) {
+        lowIndex = i;
+      }
     }
-    return [];
+    let currentNode = openList[lowIndex];
+
+    if (currentNode.x === target.x && currentNode.y === target.y) {
+      let curr = currentNode;
+      let path = [];
+      while (curr.parent) {
+        path.push(curr);
+        curr = curr.parent;
+      }
+      return path.reverse();
+    }
+
+    openList.splice(lowIndex, 1);
+    closedList.push(currentNode);
+
+    let neighbors = getNeighbors(currentNode);
+    for (let neighbor of neighbors) {
+      if (
+        inList(closedList, neighbor) ||
+        collision(neighbor, snake) ||
+        collision(neighbor, bombs)
+      ) {
+        continue;
+      }
+
+      let gScore = currentNode.g + 1;
+      let gScoreIsBest = false;
+
+      if (!inList(openList, neighbor)) {
+        gScoreIsBest = true;
+        neighbor.h = heuristic(neighbor, target);
+        openList.push(neighbor);
+      } else if (gScore < neighbor.g) {
+        gScoreIsBest = true;
+      }
+
+      if (gScoreIsBest) {
+        neighbor.parent = currentNode;
+        neighbor.g = gScore;
+        neighbor.f = neighbor.g + neighbor.h;
+      }
+    }
+  }
+  return [];
 }
 
 function getNeighbors(node) {
-    let neighbors = [];
-    let dirs = [
-        { x: -1, y: 0 }, { x: 1, y: 0 },
-        { x: 0, y: -1 }, { x: 0, y: 1 }
-    ];
-    for (let dir of dirs) {
-        let neighbor = { x: node.x + dir.x * box, y: node.y + dir.y * box };
-        if (neighbor.x >= 0 && neighbor.x < 18 * box && neighbor.y >= 0 && neighbor.y < 18 * box) {
-            neighbors.push(neighbor);
-        }
+  let neighbors = [];
+  let dirs = [
+    { x: -1, y: 0 },
+    { x: 1, y: 0 },
+    { x: 0, y: -1 },
+    { x: 0, y: 1 },
+  ];
+  for (let dir of dirs) {
+    let neighbor = { x: node.x + dir.x * box, y: node.y + dir.y * box };
+    if (
+      neighbor.x >= 0 &&
+      neighbor.x < 18 * box &&
+      neighbor.y >= 0 &&
+      neighbor.y < 18 * box
+    ) {
+      neighbors.push(neighbor);
     }
-    return neighbors;
+  }
+  return neighbors;
 }
 
 function inList(list, node) {
-    for (let item of list) {
-        if (item.x === node.x && item.y === node.y) {
-            return true;
-        }
+  for (let item of list) {
+    if (item.x === node.x && item.y === node.y) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 function heuristic(node, target) {
-    return Math.abs(node.x - target.x) / box + Math.abs(node.y - target.y) / box;
+  return Math.abs(node.x - target.x) / box + Math.abs(node.y - target.y) / box;
 }
-
+let tempScore;
+let scoreUpdated = true;
 function draw() {
-    ctx.fillStyle = "HoneyDew";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const rows = canvas.height / box;
-    const cols = canvas.width / box;
+  ctx.fillStyle = "HoneyDew";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const rows = canvas.height / box;
+  const cols = canvas.width / box;
 
-    for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-            ctx.fillStyle = (row + col) % 2 === 0 ? "#A3D04A" : "#A9DA4D";
-            ctx.fillRect(col * box, row * box, box, box);
-        }
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      ctx.fillStyle = (row + col) % 2 === 0 ? "#A3D04A" : "#A9DA4D";
+      ctx.fillRect(col * box, row * box, box, box);
     }
-    
-    for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? "green" : "white";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
-        ctx.strokeStyle = "green";
-        ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+  }
+
+  for (let i = 0; i < snake.length; i++) {
+    ctx.fillStyle = i === 0 ? "green" : "white";
+    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    ctx.strokeStyle = "green";
+    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+  }
+
+  if (snake.length > 0) {
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(
+      snake[0].x + box / 4,
+      snake[0].y + box / 4,
+      box / 8,
+      0,
+      Math.PI * 2,
+      true
+    );
+    ctx.arc(
+      snake[0].x + (3 * box) / 4,
+      snake[0].y + box / 4,
+      box / 8,
+      0,
+      Math.PI * 2,
+      true
+    );
+    ctx.fill();
+  }
+
+  ctx.drawImage(yellowAppleImg, yellowFood.x, yellowFood.y, box, box);
+  ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
+
+  for (let bomb of bombs) {
+    ctx.drawImage(bombImg, bomb.x, bomb.y, box, box);
+  }
+
+  let snakeX = snake[0].x;
+  let snakeY = snake[0].y;
+
+  let blueDistance = heuristic(snake[0], yellowFood);
+  let redDistance = heuristic(snake[0], redFood);
+  let target = blueDistance <= redDistance ? yellowFood : redFood;
+
+  let path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, target);
+
+  if (path.length > 0) {
+    snakeX = path[0].x;
+    snakeY = path[0].y;
+  }
+
+  if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
+    score += 2;
+    yellowFood = generateFood();
+  } else if (snakeX === redFood.x && snakeY === redFood.y) {
+    score += 3;
+    redFood = generateFood();
+  } else {
+    snake.pop();
+  }
+
+  let newHead = { x: snakeX, y: snakeY };
+
+  if (
+    snakeX < 0 ||
+    snakeX >= 18 * box ||
+    snakeY < 0 ||
+    snakeY >= 18 * box ||
+    collision(newHead, snake) ||
+    collision(newHead, bombs)
+  ) {
+    clearInterval(game);
+    alert("Game Over");
+  }
+
+  snake.unshift(newHead);
+  if (Math.floor(score/5) && scoreUpdated) {
+    if (score >= 30) {
+      // הוספת 2 פצצות כאשר הציון מגיע ל-30
+      bombs.push(generateBomb());
     }
+    bombs.push(generateBomb());
+    tempScore = score;
+  }
+  scoreUpdated = Math.floor(tempScore/5) != Math.floor(score/5);
 
-    if (snake.length > 0) {
-        ctx.fillStyle = "black";
-        ctx.beginPath();
-        ctx.arc(snake[0].x + box / 4, snake[0].y + box / 4, box / 8, 0, Math.PI * 2, true);
-        ctx.arc(snake[0].x + 3 * box / 4, snake[0].y + box / 4, box / 8, 0, Math.PI * 2, true);
-        ctx.fill();
-    }
+  // Stop the game when score reaches 50
+  if (score >= 50) {
+    clearInterval(game);
+    alert("Congratulations! You reached score 50.");
+  }
 
-    ctx.drawImage(yellowAppleImg, yellowFood.x, yellowFood.y, box, box);
-    ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
+  if (score >= 10) {
+    moveYellowFood();
+    moveRedFood();
+  }
 
-    for (let bomb of bombs) {
-        ctx.drawImage(bombImg, bomb.x, bomb.y, box, box);
-    }
-
-    let snakeX = snake[0].x;
-    let snakeY = snake[0].y;
-
-    let blueDistance = heuristic(snake[0], yellowFood);
-    let redDistance = heuristic(snake[0], redFood);
-    let target = blueDistance <= redDistance ? yellowFood : redFood;
-
-    let path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, target);
-
-    if (path.length > 0) {
-        snakeX = path[0].x;
-        snakeY = path[0].y;
-    }
-    
-
-    if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
-        score += 2;
-        yellowFood = generateFood();
-    } else if (snakeX === redFood.x && snakeY === redFood.y) {
-        score += 3;
-        redFood = generateFood();
-    } else {
-        snake.pop();
-    }
-
-    let newHead = { x: snakeX, y: snakeY };
-
-    if (
-        snakeX < 0 || snakeX >= 18 * box ||
-        snakeY < 0 || snakeY >= 18 * box || 
-        collision(newHead, snake) || collision(newHead, bombs)
-    ) {
-        clearInterval(game);
-        alert("Game Over");
-    } 
-
-    snake.unshift(newHead);
-  
-    if (score % 5 === 0 && score !== 0 && bombs.length < score / 5) {
-        while (bombs.length < score / 5) {
-            bombs.push(generateBomb());
-        }
-    }
-    
-    // הוספת 2 פצצות כאשר הציון מגיע ל-30
-    if (score === 30 && bombs.length < (score / 5) + 2) {
-        bombs.push(generateBomb());
-        bombs.push(generateBomb());
-    }
-    
-    // Stop the game when score reaches 40
-    if (score >= 40) {
-        clearInterval(game);
-        alert("Congratulations! You reached score 40.");
-    }
-
-    if (score >= 10) {
-        moveYellowFood();
-        moveRedFood();
-    }
-
-    ctx.fillStyle = "green";
-    ctx.font = "30px Verdana";
-    ctx.fillText(score, 2 * box, 1.6 * box);
+  ctx.fillStyle = "green";
+  ctx.font = "30px Verdana";
+  ctx.fillText(score, 2 * box, 1.6 * box);
 }
 
 function moveYellowFood() {
-    if (yellowMoveStep === 0 || yellowMoveStep === 2) {
-        yellowDirection = -yellowDirection;
-        yellowMoveStep = 0;
-    }
-    let newX = yellowFood.x + yellowDirection * box;
+  if (yellowMoveStep === 0 || yellowMoveStep === 2) {
+    yellowDirection = -yellowDirection;
+    yellowMoveStep = 0;
+  }
+  let newX = yellowFood.x + yellowDirection * box;
 
-    if (newX < 0) newX = 0;
-    if (newX >= 18 * box) newX = (18 * box) - box;
+  if (newX < 0) newX = 0;
+  if (newX >= 18 * box) newX = 18 * box - box;
 
-    if (isFoodOnSnake(newX, yellowFood.y) || isFoodOnBomb(newX, yellowFood.y)) {
-        yellowMoveStep++;
-        return;
-    }
-
-    yellowFood.x = newX;
+  if (isOnSnake(newX, yellowFood.y) || isOnBomb(newX, yellowFood.y)) {
     yellowMoveStep++;
+    return;
+  }
+
+  yellowFood.x = newX;
+  yellowMoveStep++;
 }
 
 function moveRedFood() {
-    if (redMoveStep === 0 || redMoveStep === 2) {
-        redDirection = -redDirection;
-        redMoveStep = 0;
-    }
-    let newY = redFood.y + redDirection * box;
+  if (redMoveStep === 0 || redMoveStep === 2) {
+    redDirection = -redDirection;
+    redMoveStep = 0;
+  }
+  let newY = redFood.y + redDirection * box;
 
-    if (newY < 0) newY = 0;
-    if (newY >= 18 * box) newY = (18 * box) - box;
+  if (newY < 0) newY = 0;
+  if (newY >= 18 * box) newY = 18 * box - box;
 
-    if (isFoodOnSnake(redFood.x, newY) || isFoodOnBomb(redFood.x, newY)) {
-        redMoveStep++;
-        return;
-    }
-
-    redFood.y = newY;
+  if (isOnSnake(redFood.x, newY) || isOnBomb(redFood.x, newY)) {
     redMoveStep++;
+    return;
+  }
+
+  redFood.y = newY;
+  redMoveStep++;
 }
 
-function isFoodOnSnake(foodX, foodY) {
-    for (let i = 0; i < snake.length; i++) {
-        if (snake[i].x === foodX && snake[i].y === foodY) {
-            return true;
-        }
+function isOnSnake(x, y) {
+  for (let i = 0; i < snake.length; i++) {
+    if (snake[i].x === x && snake[i].y === y) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
-function isFoodOnBomb(foodX, foodY) {
-    for (let i = 0; i < bombs.length; i++) {
-        if (bombs[i].x === foodX && bombs[i].y === foodY) {
-            return true;
-        }
+function isOnFood(x, y) {
+  return (
+    (redFood.x == x && redFood.y == y) ||
+    (yellowFood.x == x && yellowFood.y == y)
+  );
+}
+
+function isOnBomb(x, y) {
+  for (let i = 0; i < bombs.length; i++) {
+    if (bombs[i].x === x && bombs[i].y === y) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
-
-function isBombOnBomb(bombX, bombY) {
-    for (let i = 0; i < bombs.length; i++) {
-        if (bombs[i].x === bombX && bombs[i].y === bombY) {
-            return true;
-        }
-    }
-    return false;
-}
-
 
 function collision(head, array) {
-    for (let i = 0; i < array.length; i++) {
-        if (head.x === array[i].x && head.y === array[i].y) {
-            return true;
-        }
+  for (let i = 0; i < array.length; i++) {
+    if (head.x === array[i].x && head.y === array[i].y) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 function generateFood() {
-    let foodX, foodY;
-    do {
-        foodX = Math.floor(Math.random() * 17 + 1) * box;
-        foodY = Math.floor(Math.random() * 15 + 3) * box;
-    } while (isFoodOnSnake(foodX, foodY) || isFoodOnBomb(foodX, foodY));
-    return { x: foodX, y: foodY };
+  let foodX, foodY;
+  do {
+    foodX = Math.floor(Math.random() * 17 + 1) * box;
+    foodY = Math.floor(Math.random() * 15 + 3) * box;
+  } while (isOnSnake(foodX, foodY) || isOnBomb(foodX, foodY));
+  return { x: foodX, y: foodY };
 }
 
 function generateBomb() {
-    let bombX, bombY;
-    do {
-        bombX = Math.floor(Math.random() * 17 + 1) * box;
-        bombY = Math.floor(Math.random() * 15 + 3) * box;
-    } while (isFoodOnSnake(bombX, bombY) || isBombOnBomb(bombX, bombY) || isFoodOnBomb(bombX, bombY));
-    return { x: bombX, y: bombY };
+  let bombX, bombY;
+  do {
+    bombX = Math.floor(Math.random() * 17 + 1) * box;// check radius 3
+    bombY = Math.floor(Math.random() * 15 + 3) * box;
+  } while (isOnSnake(bombX, bombY) || isOnBomb(bombX, bombY));
+  return { x: bombX, y: bombY };
 }
 
-
 function isCollisionWithFood(head) {
-    return (head.x === yellowFood.x && head.y === yellowFood.y) || (head.x === redFood.x && head.y === redFood.y);
+  return (
+    (head.x === yellowFood.x && head.y === yellowFood.y) ||
+    (head.x === redFood.x && head.y === redFood.y)
+  );
 }
 
 yellowFood = generateFood();
 redFood = generateFood();
 bombs = [generateBomb(), generateBomb()];
 
-let game = setInterval(draw, 300);
+let game = setInterval(draw, 200);
