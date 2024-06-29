@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d");
 
 const box = 32;
 let snake = [];
-snake[0] = { x: 9 * box, y: 10 * box };
+snake[0] = { x: 9 * box, y: 10 * box };// נקודת ההתחלה של הנחש
 
 let yellowFood;
 let redFood;
@@ -19,12 +19,13 @@ let bombs = [];
 
 // Load the apple and bomb images
 const yellowAppleImg = new Image();
-yellowAppleImg.src = "yellowA.png"; // Replace with the actual path to the yellow apple image
+yellowAppleImg.src = "yellowA.png"; 
 const redAppleImg = new Image();
-redAppleImg.src = "RedA.png"; // Replace with the actual path to the red apple image
+redAppleImg.src = "RedA.png"; 
 const bombImg = new Image();
-bombImg.src = "bomb.png"; // Replace with the actual path to the bomb image
+bombImg.src = "bomb.png"; 
 
+// A* פונקציית למציאת המסלול הקצר ביותר
 function aStar(start, target) {
   let openList = [];
   let closedList = [];
@@ -83,6 +84,7 @@ function aStar(start, target) {
   return [];
 }
 
+//node פונקציה שמחזירה את השכנים של 
 function getNeighbors(node) {
   let neighbors = [];
   let dirs = [
@@ -105,6 +107,7 @@ function getNeighbors(node) {
   return neighbors;
 }
 
+// list פונקציה שבודקת אם צומת נמצא ברשימה 
 function inList(list, node) {
   for (let item of list) {
     if (item.x === node.x && item.y === node.y) {
@@ -113,12 +116,14 @@ function inList(list, node) {
   }
   return false;
 }
-
+//node ו-target פונקציית היורסיטית להערכת המרחק בין 
 function heuristic(node, target) {
   return Math.abs(node.x - target.x) / box + Math.abs(node.y - target.y) / box;
 }
-let tempScore;
-let scoreUpdated = true;
+
+let tempScore;//משתנה זמני לשמירת הניקוד
+let scoreUpdated = true;// דגל הבודק אם הניקוד התעדכן
+
 function draw() {
   ctx.fillStyle = "HoneyDew";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -171,10 +176,12 @@ function draw() {
   let snakeX = snake[0].x;
   let snakeY = snake[0].y;
 
-  let blueDistance = heuristic(snake[0], yellowFood);
+  // בחירת היעד הקרוב ביותר
+  let yellowDistance = heuristic(snake[0], yellowFood);
   let redDistance = heuristic(snake[0], redFood);
-  let target = blueDistance <= redDistance ? yellowFood : redFood;
+  let target = yellowDistance <= redDistance ? yellowFood : redFood;
 
+   // מציאת המסלול הקצר ביותר ליעד
   let path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, target);
 
   if (path.length > 0) {
@@ -182,6 +189,7 @@ function draw() {
     snakeY = path[0].y;
   }
 
+  // אכילת התפוחים ועדכון הציון
   if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
     score += 2;
     yellowFood = generateFood();
@@ -194,6 +202,7 @@ function draw() {
 
   let newHead = { x: snakeX, y: snakeY };
 
+ // בדיקת התנגשות עם גבולות המסך, עם הנחש עצמו או עם הפצצות
   if (
     snakeX < 0 ||
     snakeX >= 18 * box ||
@@ -207,6 +216,8 @@ function draw() {
   }
 
   snake.unshift(newHead);
+
+   // הוספת פצצות בהתאם לניקוד
   if (Math.floor(score/5) && scoreUpdated) {
     if (score >= 30) {
       // הוספת 2 פצצות כאשר הציון מגיע ל-30
@@ -222,7 +233,7 @@ function draw() {
     clearInterval(game);
     alert("Congratulations! You reached score 50.");
   }
-
+  // הזזת התפוחים כאשר הניקוד מגיע ל-10
   if (score >= 10) {
     moveYellowFood();
     moveRedFood();
@@ -233,6 +244,7 @@ function draw() {
   ctx.fillText(score, 2 * box, 1.6 * box);
 }
 
+// פונקציה להזזת התפוח הצהוב
 function moveYellowFood() {
   if (yellowMoveStep === 0 || yellowMoveStep === 2) {
     yellowDirection = -yellowDirection;
@@ -251,7 +263,7 @@ function moveYellowFood() {
   yellowFood.x = newX;
   yellowMoveStep++;
 }
-
+// פונקציה להזזת התפוח האדום
 function moveRedFood() {
   if (redMoveStep === 0 || redMoveStep === 2) {
     redDirection = -redDirection;
@@ -271,6 +283,7 @@ function moveRedFood() {
   redMoveStep++;
 }
 
+// פונקציה שבודקת אם התפוח נמצא על הנחש
 function isOnSnake(x, y) {
   for (let i = 0; i < snake.length; i++) {
     if (snake[i].x === x && snake[i].y === y) {
@@ -286,7 +299,7 @@ function isOnFood(x, y) {
     (yellowFood.x == x && yellowFood.y == y)
   );
 }
-
+// פונקציה שבודקת אם התפוח נמצא על הפצצות
 function isOnBomb(x, y) {
   for (let i = 0; i < bombs.length; i++) {
     if (bombs[i].x === x && bombs[i].y === y) {
@@ -305,6 +318,7 @@ function collision(head, array) {
   return false;
 }
 
+// פונקציה ליצירת אוכל חדש במקום רנדומלי
 function generateFood() {
   let foodX, foodY;
   do {
@@ -314,6 +328,7 @@ function generateFood() {
   return { x: foodX, y: foodY };
 }
 
+// פונקציה ליצירת פצצה חדשה במקום רנדומלי
 function generateBomb() {
   let bombX, bombY;
   do {
@@ -323,6 +338,7 @@ function generateBomb() {
   return { x: bombX, y: bombY };
 }
 
+// פונקציה שבודקת אם ראש הנחש מתנגש עם אוכל
 function isCollisionWithFood(head) {
   return (
     (head.x === yellowFood.x && head.y === yellowFood.y) ||
@@ -330,6 +346,7 @@ function isCollisionWithFood(head) {
   );
 }
 
+// יצירת אוכל ופצצות בתחילת המשחק
 yellowFood = generateFood();
 redFood = generateFood();
 bombs = [generateBomb(), generateBomb()];
