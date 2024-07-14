@@ -202,18 +202,18 @@ function draw() {
 
   let newHead = { x: snakeX, y: snakeY };
 
-  // בדיקת התנגשות עם גבולות המסך, עם הנחש עצמו או עם הפצצות
-  if (
-    snakeX < 0 ||
-    snakeX >= 18 * box ||
-    snakeY < 0 ||
-    snakeY >= 18 * box ||
-    collision(newHead, snake) ||
-    collision(newHead, bombs)
-  ) {
-    alert("Game Over");
-    clearInterval(game);
-  }
+  // // בדיקת התנגשות עם גבולות המסך, עם הנחש עצמו או עם הפצצות
+  // if (
+  //   snakeX < 0 ||
+  //   snakeX >= 18 * box ||
+  //   snakeY < 0 ||
+  //   snakeY >= 18 * box ||
+  //   collision(newHead, snake) ||
+  //   collision(newHead, bombs)
+  // ) {
+  //   alert("Game Over");
+  //   clearInterval(game);
+  // }
 
   snake.unshift(newHead);
   checkGameOver(newHead);
@@ -260,7 +260,7 @@ function checkGameOver(newHead) {
   }
 
   // Stop the game when score reaches 50
-  if (score >= 15) {
+  if (score >= 50) {
       setTimeout(function () {
           clearInterval(game);
           alert("Congratulations! You reached score 50.");
