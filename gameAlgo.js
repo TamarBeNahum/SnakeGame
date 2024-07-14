@@ -186,11 +186,6 @@ function draw() {
     }
     scoreUpdated = Math.floor(tempScore / 5) != Math.floor(score / 5);
 
-    // if (score >= 15) {
-    //     clearInterval(game);
-    //     alert("Congratulations! You reached score 50.");
-    // }
-
     if (score >= 10) {
         moveYellowFood();
         moveRedFood();
@@ -219,6 +214,9 @@ function checkGameOver(newHead) {
         setTimeout(function () {
             clearInterval(game);
             alert("Congratulations! You reached score 50.");
+            setTimeout(function () {
+                location.reload();
+            }, 100); // Slight delay to ensure the alert is closed before reloading
         }, 600); // 0.3 seconds delay
     }
 }
