@@ -141,16 +141,15 @@ function checkGameOver(newHead) {
     }
 
     // Stop the game when score reaches 50
-    if (score >= 15) {
-        clearInterval(game);
-        alert("Congratulations! You reached score 50.");
+    if (score >= 50) {
         setTimeout(function () {
-          location.reload();
-        }, 100); // Slight delay to ensure the alert is closed before reloading
-        return true;
-      }
-      return false;
-    
+            clearInterval(game);
+            alert("Congratulations! You reached score 50.");
+            setTimeout(function () {
+                location.reload();
+            }, 100); // Slight delay to ensure the alert is closed before reloading
+        }, 600); // 0.3 seconds delay
+    }
 }
 
 function moveYellowFood() {
