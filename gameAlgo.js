@@ -216,6 +216,7 @@ function draw() {
   }
 
   snake.unshift(newHead);
+  checkGameOver(newHead);
 
   // הוספת פצצות בהתאם לניקוד
   if (Math.floor(score / 5) && scoreUpdated) {
@@ -228,11 +229,11 @@ function draw() {
   }
   scoreUpdated = Math.floor(tempScore / 5) != Math.floor(score / 5);
 
-  // Stop the game when score reaches 50
-  if (score >= 50) {
-    clearInterval(game);
-    alert("Congratulations! You reached score 50.");
-  }
+  // // Stop the game when score reaches 50
+  // if (score >= 50) {
+  //   clearInterval(game);
+  //   alert("Congratulations! You reached score 50.");
+  // }
   // הזזת התפוחים כאשר הניקוד מגיע ל-10
   if (score >= 10) {
     moveYellowFood();
@@ -244,6 +245,31 @@ function draw() {
   ctx.fillText(score, 2 * box, 1.6 * box);
 }
 
+
+function checkGameOver(newHead) {
+  if (
+      newHead.x < 0 ||
+      newHead.x >= 18 * box ||
+      newHead.y < 0 ||
+      newHead.y >= 18 * box ||
+      collision(newHead, snake.slice(1)) ||
+      collision(newHead, bombs)
+  ) {
+      clearInterval(game);
+      alert("Game Over");
+  }
+
+  // Stop the game when score reaches 50
+  if (score >= 15) {
+      setTimeout(function () {
+          clearInterval(game);
+          alert("Congratulations! You reached score 50.");
+          setTimeout(function () {
+              location.reload();
+          }, 100); // Slight delay to ensure the alert is closed before reloading
+      }, 600); // 0.3 seconds delay
+  }
+}
 // פונקציה להזזת התפוח הצהוב
 function moveYellowFood() {
   if (yellowMoveStep === 0 || yellowMoveStep === 2) {
