@@ -294,7 +294,7 @@ function collision(head, array) {
     }
     return false;
 }
-
+// פונקציה ליצירת אוכל חדש במקום רנדומלי
 function generateFood() {
     let foodX, foodY;
     do {
@@ -303,7 +303,7 @@ function generateFood() {
     } while (isOnSnake(foodX, foodY) || isOnBomb(foodX, foodY));
     return { x: foodX, y: foodY };
 }
-
+// פונקציה ליצירת פצצה חדשה במקום רנדומלי
 function generateBomb() {
     let bombX, bombY;
     do {
@@ -313,6 +313,15 @@ function generateBomb() {
     return { x: bombX, y: bombY };
 }
 
+// פונקציה שבודקת אם ראש הנחש מתנגש עם אוכל
+function isCollisionWithFood(head) {
+  return (
+    (head.x === yellowFood.x && head.y === yellowFood.y) ||
+    (head.x === redFood.x && head.y === redFood.y)
+  );
+}
+
+// יצירת אוכל ופצצות בתחילת המשחק
 function isCollisionWithFood(head) {
     return (
         (head.x === yellowFood.x && head.y === yellowFood.y) ||
