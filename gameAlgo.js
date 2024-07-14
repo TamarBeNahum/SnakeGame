@@ -1,14 +1,10 @@
-// קבלת קנבס וקונטקסט לציור
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// גודל כל קוביה בלוח המשחק
 const box = 32;
-// יצירת מערך הנחש והגדרת נקודת ההתחלה שלו
 let snake = [];
-snake[0] = { x: 9 * box, y: 10 * box };
+snake[0] = { x: 9 * box, y: 10 * box }; // נקודת ההתחלה של הנחש
 
-// הגדרת משתנים למזון והנקודות
 let yellowFood;
 let redFood;
 
@@ -16,12 +12,12 @@ let score = 0;
 
 let yellowMoveStep = 0;
 let redMoveStep = 0;
-let yellowDirection = -1; // -1 שמאלה, 1 ימינה
-let redDirection = -1; // -1 למעלה, 1 למטה
+let yellowDirection = -1; // -1 for left, 1 for right
+let redDirection = -1; // -1 for up, 1 for down
 
 let bombs = [];
 
-// טעינת תמונות התפוחים והפצצה
+// Load the apple and bomb images
 const yellowAppleImg = new Image();
 yellowAppleImg.src = "yellowA.png";
 const redAppleImg = new Image();
@@ -29,7 +25,7 @@ redAppleImg.src = "RedA.png";
 const bombImg = new Image();
 bombImg.src = "bomb.png";
 
-// פונקציית A* למציאת המסלול הקצר ביותר
+// A* פונקציית למציאת המסלול הקצר ביותר
 function aStar(start, target) {
   let openList = [];
   let closedList = [];
@@ -88,7 +84,7 @@ function aStar(start, target) {
   return [];
 }
 
-// פונקציה שמחזירה את השכנים של צומת נתון
+//node פונקציה שמחזירה את השכנים של
 function getNeighbors(node) {
   let neighbors = [];
   let dirs = [
@@ -111,7 +107,7 @@ function getNeighbors(node) {
   return neighbors;
 }
 
-// פונקציה שבודקת אם צומת נמצא ברשימה
+// list פונקציה שבודקת אם צומת נמצא ברשימה
 function inList(list, node) {
   for (let item of list) {
     if (item.x === node.x && item.y === node.y) {
@@ -120,13 +116,12 @@ function inList(list, node) {
   }
   return false;
 }
-
-// פונקציית היוריסטית להערכת המרחק בין צומת למטרה
+//node ו-target פונקציית היורסיטית להערכת המרחק בין
 function heuristic(node, target) {
   return Math.abs(node.x - target.x) / box + Math.abs(node.y - target.y) / box;
 }
 
-let tempScore; // משתנה זמני לשמירת הניקוד
+let tempScore; //משתנה זמני לשמירת הניקוד
 let scoreUpdated = true; // דגל הבודק אם הניקוד התעדכן
 
 function draw() {
@@ -233,7 +228,7 @@ function draw() {
   }
   scoreUpdated = Math.floor(tempScore / 5) != Math.floor(score / 5);
 
-  // עצירת המשחק כאשר הניקוד מגיע ל-50
+  // Stop the game when score reaches 50
   if (score >= 50) {
     clearInterval(game);
     alert("Congratulations! You reached score 50.");
@@ -268,7 +263,6 @@ function moveYellowFood() {
   yellowFood.x = newX;
   yellowMoveStep++;
 }
-
 // פונקציה להזזת התפוח האדום
 function moveRedFood() {
   if (redMoveStep === 0 || redMoveStep === 2) {
@@ -299,7 +293,13 @@ function isOnSnake(x, y) {
   return false;
 }
 
-// פונקציה שבודקת אם התפוח נמצא על פצצה
+function isOnFood(x, y) {
+  return (
+    (redFood.x == x && redFood.y == y) ||
+    (yellowFood.x == x && yellowFood.y == y)
+  );
+}
+// פונקציה שבודקת אם התפוח נמצא על הפצצות
 function isOnBomb(x, y) {
   for (let i = 0; i < bombs.length; i++) {
     if (bombs[i].x === x && bombs[i].y === y) {
@@ -309,15 +309,6 @@ function isOnBomb(x, y) {
   return false;
 }
 
-// פונקציה שבודקת אם ראש הנחש מתנגש עם תפוח
-function isCollisionWithFood(head) {
-  return (
-    (head.x === yellowFood.x && head.y === yellowFood.y) ||
-    (head.x === redFood.x && head.y === redFood.y)
-  );
-}
-
-// פונקציה לבדיקה אם ראש הנחש מתנגש עם חלק אחר מהגוף
 function collision(head, array) {
   for (let i = 0; i < array.length; i++) {
     if (head.x === array[i].x && head.y === array[i].y) {
@@ -347,10 +338,17 @@ function generateBomb() {
   return { x: bombX, y: bombY };
 }
 
+// פונקציה שבודקת אם ראש הנחש מתנגש עם אוכל
+function isCollisionWithFood(head) {
+  return (
+    (head.x === yellowFood.x && head.y === yellowFood.y) ||
+    (head.x === redFood.x && head.y === redFood.y)
+  );
+}
+
 // יצירת אוכל ופצצות בתחילת המשחק
 yellowFood = generateFood();
 redFood = generateFood();
 bombs = [generateBomb(), generateBomb()];
 
-// התחלת המשחק עם הגדרת זמן לציור מחדש של הלוח כל 300 מילישניות
 let game = setInterval(draw, 300);
