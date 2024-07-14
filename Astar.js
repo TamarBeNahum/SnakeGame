@@ -1,7 +1,6 @@
 // Astar.js
 
-// A* function to find the shortest path
-function aStar(start, target) {
+function aStar(start, target1, target2, value1, value2) {
     let openList = [];
     let closedList = [];
     openList.push(start);
@@ -15,7 +14,7 @@ function aStar(start, target) {
         }
         let currentNode = openList[lowIndex];
 
-        if (currentNode.x === target.x && currentNode.y === target.y) {
+        if ((currentNode.x === target1.x && currentNode.y === target1.y) || (currentNode.x === target2.x && currentNode.y === target2.y)) {
             let curr = currentNode;
             let path = [];
             while (curr.parent) {
@@ -30,11 +29,7 @@ function aStar(start, target) {
 
         let neighbors = getNeighbors(currentNode);
         for (let neighbor of neighbors) {
-            if (
-                inList(closedList, neighbor) ||
-                collision(neighbor, snake) ||
-                collision(neighbor, bombs)
-            ) {
+            if (inList(closedList, neighbor) || collision(neighbor, snake) || collision(neighbor, bombs)) {
                 continue;
             }
 
@@ -43,7 +38,7 @@ function aStar(start, target) {
 
             if (!inList(openList, neighbor)) {
                 gScoreIsBest = true;
-                neighbor.h = heuristic(neighbor, target);
+                neighbor.h = Math.min(heuristic(neighbor, target1, value1), heuristic(neighbor, target2, value2));
                 openList.push(neighbor);
             } else if (gScore < neighbor.g) {
                 gScoreIsBest = true;
@@ -59,30 +54,23 @@ function aStar(start, target) {
     return [];
 }
 
-// Function to get neighbors of a node
 function getNeighbors(node) {
     let neighbors = [];
     let dirs = [
         { x: -1, y: 0 },
         { x: 1, y: 0 },
         { x: 0, y: -1 },
-        { x: 0, y: 1 },
+        { x: 0, y: 1 }
     ];
     for (let dir of dirs) {
         let neighbor = { x: node.x + dir.x * box, y: node.y + dir.y * box };
-        if (
-            neighbor.x >= 0 &&
-            neighbor.x < 18 * box &&
-            neighbor.y >= 0 &&
-            neighbor.y < 18 * box
-        ) {
+        if (neighbor.x >= 0 && neighbor.x < 18 * box && neighbor.y >= 0 && neighbor.y < 18 * box) {
             neighbors.push(neighbor);
         }
     }
     return neighbors;
 }
 
-// Function to check if a node is in a list
 function inList(list, node) {
     for (let item of list) {
         if (item.x === node.x && item.y === node.y) {
@@ -92,7 +80,6 @@ function inList(list, node) {
     return false;
 }
 
-// Heuristic function to estimate distance between node and target
-function heuristic(node, target) {
-    return Math.abs(node.x - target.x) / box + Math.abs(node.y - target.y) / box;
+function heuristic(node, target, value) {
+    return Math.sqrt((node.x - target.x) ** 2 + (node.y - target.y) ** 2) / value;
 }
