@@ -140,15 +140,28 @@ function checkGameOver(newHead) {
         alert("Game Over");
     }
 
-    // Stop the game when score reaches 50
-    if (score >= 15) {
-        setTimeout(function () {
-            clearInterval(game);
-            console.log("Congratulations! You reached score 50.");
-            setTimeout(function () {
+    // Show SweetAlert and ask for new game when score reaches 50
+    if (score >= 50) {
+        clearInterval(game);
+        Swal.fire({
+            title: "🎉 Congratulations! 🎉",
+            html: "<b>You reached a score of 50!</b><br>Do you want to start a new game?",
+            icon: "success",
+            background: "#f9f9f9",
+            showCancelButton: true,
+            confirmButtonText: "Yes, start a new game!",
+            cancelButtonText: "No, thanks!",
+            customClass: {
+                title: 'swal-title',
+                htmlContainer: 'swal-html',
+                confirmButton: 'swal-confirm',
+                cancelButton: 'swal-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
                 location.reload();
-            }, 100); // Slight delay to ensure the alert is closed before reloading
-        }, 600); // 0.3 seconds delay
+            }
+        });
     }
 }
 
@@ -253,4 +266,4 @@ yellowFood = generateFood();
 redFood = generateFood();
 bombs = [generateBomb(), generateBomb()];
 
-let game = setInterval(draw, 200);
+let game = setInterval(draw, 300);
