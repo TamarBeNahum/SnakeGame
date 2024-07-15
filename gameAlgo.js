@@ -30,6 +30,8 @@ bombImg.src = "bomb.png";
 let tempScore; // Temporary variable to store score
 let scoreUpdated = true; // Flag to check if the score is updated
 
+let path = []; // Path for the snake
+
 function draw() {
     if (gameEnded) return;
 
@@ -42,9 +44,8 @@ function draw() {
     if (score >= 10) {
         moveYellowFood();
         moveRedFood();
+        path = aStar({ x: snake[0].x, y: snake[0].y, g: 0, f: 0 }, yellowFood, redFood, 2, 3); // Update path each move
     }
-
-
 
     ctx.fillStyle = "green";
     ctx.font = "30px Verdana";
@@ -101,11 +102,14 @@ function updateSnakePosition() {
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
 
-    let path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, yellowFood, redFood, 2, 3);
+    if (score < 10 && path.length === 0) {
+        path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, yellowFood, redFood, 2, 3);
+    }
 
     if (path.length > 0) {
-        snakeX = path[0].x;
-        snakeY = path[0].y;
+        let nextStep = path.shift();
+        snakeX = nextStep.x;
+        snakeY = nextStep.y;
     }
 
     let newHead = { x: snakeX, y: snakeY };
@@ -115,11 +119,13 @@ function updateSnakePosition() {
     }
 
     if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
-        yellowFood = generateFood();
+        yellowFood = generateFood([redFood]);
         score += 2;
+        path = []; // Reset path when food is eaten
     } else if (snakeX === redFood.x && snakeY === redFood.y) {
-        redFood = generateFood();
+        redFood = generateFood([yellowFood]);
         score += 3;
+        path = []; // Reset path when food is eaten
     } else {
         snake.pop();
     }
@@ -139,9 +145,6 @@ function addBombsBasedOnScore() {
     }
     scoreUpdated = Math.floor(tempScore / 5) != Math.floor(score / 5);
 }
-
-
-
 
 function checkGameOver(newHead) {
     if (
@@ -208,7 +211,6 @@ function checkGameOver(newHead) {
     }
     return false;
 }
-
 
 function moveYellowFood() {
     if (yellowMoveStep === 0 || yellowMoveStep === 2) {
@@ -281,7 +283,7 @@ function collision(head, array) {
     }
     return false;
 }
-// existingFoods[] handeling food coordinates, ensuring the apples are not at the same position as any existing food items are pass in the array
+
 function generateFood(existingFoods=[]) {
     let foodX, foodY;
     do {
@@ -296,7 +298,6 @@ function generateFood(existingFoods=[]) {
     );
     return { x: foodX, y: foodY };
 }
-
 
 function generateBomb() {
     let bombX, bombY;
@@ -348,7 +349,6 @@ function isCollisionWithFood(head) {
         (head.x === redFood.x && head.y === redFood.y)
     );
 }
-
 
 yellowFood = generateFood([]);
 redFood = generateFood([yellowFood]); //passing [yellowFood] to ensure it doesn't overlap with yellowFood
