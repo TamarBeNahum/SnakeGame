@@ -141,10 +141,6 @@ function checkGameOver(newHead) {
         clearInterval(game);
         alert("Game Over");
     }
-<<<<<<< Updated upstream
-
-    if (score >= 50) {
-=======
     let flag=false;
     // Show SweetAlert and ask for new game when score reaches 50
     // if (score >= 5) {
@@ -179,35 +175,11 @@ function checkGameOver(newHead) {
     if (score >= 15 && !congratulationsLogged) { // Check the flag
         gameEnded = true;
         congratulationsLogged = true; // Set the flag
->>>>>>> Stashed changes
         setTimeout(function () {
             //clearInterval(game);
             console.log("Congratulations! You reached score 15.");
             setTimeout(function () {
-<<<<<<< Updated upstream
-                // Uncomment the Swal.fire code if you want to use SweetAlert for the congratulation message.
-                // Swal.fire({
-                //     title: "🎉 Congratulations! 🎉",
-                //     html: "<b>You reached a score of 50!</b><br>Do you want to start a new game?",
-                //     icon: "success",
-                //     background: "#f9f9f9",
-                //     showCancelButton: true,
-                //     confirmButtonText: "Yes, start a new game!",
-                //     cancelButtonText: "No, thanks!",
-                //     customClass: {
-                //         title: 'swal-title',
-                //         htmlContainer: 'swal-html',
-                //         confirmButton: 'swal-confirm',
-                //         cancelButton: 'swal-cancel'
-                //     }
-                // }).then((result) => {
-                //     if (result.isConfirmed) {
-                //         location.reload();
-                //     }
-                // });
-=======
                 console.log("hey");
->>>>>>> Stashed changes
             }, 100); // Slight delay to ensure the alert is closed before reloading
         }, 600); // 0.3 seconds delay
     }
