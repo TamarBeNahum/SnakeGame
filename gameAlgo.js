@@ -44,7 +44,7 @@ function draw() {
         moveRedFood();
     }
 
-    
+
 
     ctx.fillStyle = "green";
     ctx.font = "30px Verdana";
@@ -153,10 +153,25 @@ function checkGameOver(newHead) {
         collision(newHead, bombs)
     ) {
         clearInterval(game);
-        alert("Game Over");
+        Swal.fire({
+            title: "Game Over",
+            text: "You crushed!",
+            icon: "error",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Play Again!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: "success"
+                });
+                location.reload();
+            }
+        });
         return true;
     }
-    
+
     if (score >= 50 && !congratulationsLogged) {
         gameEnded = true;
         congratulationsLogged = true;
@@ -183,7 +198,7 @@ function checkGameOver(newHead) {
                         location.reload();
                     }
                 });
-            }, 100); 
+            }, 100);
         }, 600);
         return true;
     }
@@ -263,23 +278,68 @@ function collision(head, array) {
     return false;
 }
 
+// function generateFood() {
+//     let foodX, foodY;
+//     do {
+//         foodX = Math.floor(Math.random() * 17 + 1) * box;
+//         foodY = Math.floor(Math.random() * 15 + 3) * box;
+//     } while (isOnSnake(foodX, foodY) || isOnBomb(foodX, foodY) || (foodX === yellowFood?.x && foodY === yellowFood?.y) || (foodX === redFood?.x && foodY === redFood?.y));
+//     return { x: foodX, y: foodY };
+// }
+
 function generateFood() {
     let foodX, foodY;
     do {
         foodX = Math.floor(Math.random() * 17 + 1) * box;
         foodY = Math.floor(Math.random() * 15 + 3) * box;
-    } while (isOnSnake(foodX, foodY) || isOnBomb(foodX, foodY) || (foodX === yellowFood?.x && foodY === yellowFood?.y) || (foodX === redFood?.x && foodY === redFood?.y));
+    } while (
+        isOnSnake(foodX, foodY) || 
+        isOnBomb(foodX, foodY) ||
+        (foodX === yellowFood?.x && foodY === yellowFood?.y) || 
+        (foodX === redFood?.x && foodY === redFood?.y) ||
+        isNearBomb(foodX, foodY)
+    );
     return { x: foodX, y: foodY };
 }
 
+// function generateBomb() {
+//     let bombX, bombY;
+//     do {
+//         bombX = Math.floor(Math.random() * 17 + 1) * box;
+//         bombY = Math.floor(Math.random() * 15 + 3) * box;
+//     } while (isOnSnake(bombX, bombY) || isOnBomb(bombX, bombY) || (bombX === yellowFood.x && bombY === yellowFood.y) || (bombX === redFood.x && bombY === redFood.y));
+//     return { x: bombX, y: bombY };
+// }
 function generateBomb() {
     let bombX, bombY;
     do {
         bombX = Math.floor(Math.random() * 17 + 1) * box;
         bombY = Math.floor(Math.random() * 15 + 3) * box;
-    } while (isOnSnake(bombX, bombY) || isOnBomb(bombX, bombY) || (bombX === yellowFood.x && bombY === yellowFood.y) || (bombX === redFood.x && bombY === redFood.y));
+    } while (
+        isOnSnake(bombX, bombY) || 
+        isOnBomb(bombX, bombY) || 
+        isNearFood(bombX, bombY) ||
+        (bombX === yellowFood.x && bombY === yellowFood.y) || 
+        (bombX === redFood.x && bombY === redFood.y)
+    );
     return { x: bombX, y: bombY };
 }
+
+function isNearFood(x, y) {
+    const distanceToYellowFood = Math.abs(x - yellowFood.x) <= box && Math.abs(y - yellowFood.y) <= box;
+    const distanceToRedFood = Math.abs(x - redFood.x) <= box && Math.abs(y - redFood.y) <= box;
+    return distanceToYellowFood || distanceToRedFood;
+}
+
+function isNearBomb(x, y) {
+    for (let i = 0; i < bombs.length; i++) {
+        if (Math.abs(x - bombs[i].x) <= box && Math.abs(y - bombs[i].y) <= box) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 function isCollisionWithFood(head) {
     return (
