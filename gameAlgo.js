@@ -33,8 +33,31 @@ let scoreUpdated = true; // Flag to check if the score is updated
 function draw() {
     if (gameEnded) return;
 
+    clearCanvas();
+    drawBoard();
+    drawSnake();
+    drawFood();
+    drawBombs();
+
+    if (score >= 10) {
+        moveYellowFood();
+        moveRedFood();
+    }
+
+    
+
+    ctx.fillStyle = "green";
+    ctx.font = "30px Verdana";
+    ctx.fillText(score, 2 * box, 1.6 * box);
+    updateSnakePosition();
+}
+
+function clearCanvas() {
     ctx.fillStyle = "HoneyDew";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawBoard() {
     const rows = canvas.height / box;
     const cols = canvas.width / box;
 
@@ -44,7 +67,9 @@ function draw() {
             ctx.fillRect(col * box, row * box, box, box);
         }
     }
+}
 
+function drawSnake() {
     for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? "green" : "white";
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
@@ -59,24 +84,23 @@ function draw() {
         ctx.arc(snake[0].x + (3 * box) / 4, snake[0].y + box / 4, box / 8, 0, Math.PI * 2, true);
         ctx.fill();
     }
+}
 
+function drawFood() {
     ctx.drawImage(yellowAppleImg, yellowFood.x, yellowFood.y, box, box);
     ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
+}
 
+function drawBombs() {
     for (let bomb of bombs) {
         ctx.drawImage(bombImg, bomb.x, bomb.y, box, box);
     }
+}
 
-    // Move apples before checking the snake's position
-    if (score >= 10) {
-        moveYellowFood();
-        moveRedFood();
-    }
-
+function updateSnakePosition() {
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
 
-    // Find the shortest path to the closest target with target values
     let path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, yellowFood, redFood, 2, 3);
 
     if (path.length > 0) {
@@ -84,40 +108,40 @@ function draw() {
         snakeY = path[0].y;
     }
 
-    // Check game over before updating the snake position
     let newHead = { x: snakeX, y: snakeY };
+
     if (checkGameOver(newHead)) {
         return;
     }
 
-    // Eating apples and updating the score
     if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
-        score += 2;
         yellowFood = generateFood();
+        score += 2;
     } else if (snakeX === redFood.x && snakeY === redFood.y) {
-        score += 3;
         redFood = generateFood();
+        score += 3;
     } else {
         snake.pop();
     }
 
     snake.unshift(newHead);
 
-    // Adding bombs based on score
+    addBombsBasedOnScore();
+}
+
+function addBombsBasedOnScore() {
     if (Math.floor(score / 5) && scoreUpdated) {
         if (score >= 30) {
-            // Add 2 bombs when score reaches 30
             bombs.push(generateBomb());
         }
         bombs.push(generateBomb());
         tempScore = score;
     }
     scoreUpdated = Math.floor(tempScore / 5) != Math.floor(score / 5);
-
-    ctx.fillStyle = "green";
-    ctx.font = "30px Verdana";
-    ctx.fillText(score, 2 * box, 1.6 * box);
 }
+
+
+
 
 function checkGameOver(newHead) {
     if (
@@ -133,7 +157,7 @@ function checkGameOver(newHead) {
         return true;
     }
     
-    if (score >= 15 && !congratulationsLogged) {
+    if (score >= 50 && !congratulationsLogged) {
         gameEnded = true;
         congratulationsLogged = true;
         setTimeout(function () {
