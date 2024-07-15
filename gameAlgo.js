@@ -32,6 +32,7 @@ let scoreUpdated = true; // Flag to check if the score is updated
 
 function draw() {
     if (gameEnded) return;
+
     ctx.fillStyle = "HoneyDew";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     const rows = canvas.height / box;
@@ -54,22 +55,8 @@ function draw() {
     if (snake.length > 0) {
         ctx.fillStyle = "black";
         ctx.beginPath();
-        ctx.arc(
-            snake[0].x + box / 4,
-            snake[0].y + box / 4,
-            box / 8,
-            0,
-            Math.PI * 2,
-            true
-        );
-        ctx.arc(
-            snake[0].x + (3 * box) / 4,
-            snake[0].y + box / 4,
-            box / 8,
-            0,
-            Math.PI * 2,
-            true
-        );
+        ctx.arc(snake[0].x + box / 4, snake[0].y + box / 4, box / 8, 0, Math.PI * 2, true);
+        ctx.arc(snake[0].x + (3 * box) / 4, snake[0].y + box / 4, box / 8, 0, Math.PI * 2, true);
         ctx.fill();
     }
 
@@ -97,6 +84,12 @@ function draw() {
         snakeY = path[0].y;
     }
 
+    // Check game over before updating the snake position
+    let newHead = { x: snakeX, y: snakeY };
+    if (checkGameOver(newHead)) {
+        return;
+    }
+
     // Eating apples and updating the score
     if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
         score += 2;
@@ -108,10 +101,7 @@ function draw() {
         snake.pop();
     }
 
-    let newHead = { x: snakeX, y: snakeY };
-
     snake.unshift(newHead);
-    checkGameOver(newHead);
 
     // Adding bombs based on score
     if (Math.floor(score / 5) && scoreUpdated) {
@@ -140,50 +130,42 @@ function checkGameOver(newHead) {
     ) {
         clearInterval(game);
         alert("Game Over");
+        return true;
     }
-    let flag=false;
-    // Show SweetAlert and ask for new game when score reaches 50
-    // if (score >= 5) {
-    //     gameEnded = true;
-    //     setTimeout(function () {
-    //         clearInterval(game);
-    //         console.log("Congratulations! You reached score 50.");
-            
-    //         setTimeout(function () {
-    //             // Swal.fire({
-    //             //     title: "🎉 Congratulations! 🎉",
-    //             //     html: "<b>You reached a score of 50!</b><br>Do you want to start a new game?",
-    //             //     icon: "success",
-    //             //     background: "#f9f9f9",
-    //             //     showCancelButton: true,
-    //             //     confirmButtonText: "Yes, start a new game!",
-    //             //     cancelButtonText: "No, thanks!",
-    //             //     customClass: {
-    //             //         title: 'swal-title',
-    //             //         htmlContainer: 'swal-html',
-    //             //         confirmButton: 'swal-confirm',
-    //             //         cancelButton: 'swal-cancel'
-    //             //     }
-    //             // }).then((result) => {
-    //             //     if (result.isConfirmed) {
-    //             //         location.reload();
-    //             //     }
-    //             // });
-    //         }, 100); // Slight delay to ensure the alert is closed before reloading
-    //     }, 600); // 0.3 seconds delay
-    // }
-    if (score >= 15 && !congratulationsLogged) { // Check the flag
+    
+    if (score >= 15 && !congratulationsLogged) {
         gameEnded = true;
-        congratulationsLogged = true; // Set the flag
+        congratulationsLogged = true;
         setTimeout(function () {
-            //clearInterval(game);
+            clearInterval(game);
             console.log("Congratulations! You reached score 15.");
             setTimeout(function () {
-                console.log("hey");
-            }, 100); // Slight delay to ensure the alert is closed before reloading
-        }, 600); // 0.3 seconds delay
+                Swal.fire({
+                    title: "🎉 Congratulations! 🎉",
+                    html: "<b>You reached a score of 50!</b><br>Do you want to start a new game?",
+                    icon: "success",
+                    background: "#f9f9f9",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, start a new game!",
+                    cancelButtonText: "No, thanks!",
+                    customClass: {
+                        title: 'swal-title',
+                        htmlContainer: 'swal-html',
+                        confirmButton: 'swal-confirm',
+                        cancelButton: 'swal-cancel'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            }, 100); 
+        }, 600);
+        return true;
     }
+    return false;
 }
+
 
 function moveYellowFood() {
     if (yellowMoveStep === 0 || yellowMoveStep === 2) {
