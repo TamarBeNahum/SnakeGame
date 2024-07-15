@@ -281,7 +281,7 @@ function collision(head, array) {
     }
     return false;
 }
-// existingFoods[] generate food coordinates, ensuring the apples are not at the same position as any existing food items are pass in the array
+// existingFoods[] handeling food coordinates, ensuring the apples are not at the same position as any existing food items are pass in the array
 function generateFood(existingFoods=[]) {
     let foodX, foodY;
     do {
