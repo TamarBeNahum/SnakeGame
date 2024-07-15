@@ -155,20 +155,24 @@ function checkGameOver(newHead) {
         clearInterval(game);
         Swal.fire({
             title: "Game Over",
-            text: "You crushed!",
+            html: "<b>You crushed!",
             icon: "error",
+            background: "#f9f9f9",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Play Again!"
+            confirmButtonText: "Play Again!",
+            cancelButtonText: "cancel",
+            customClass: {
+                title: 'swal-title',
+                htmlContainer: 'swal-html',
+                confirmButton: 'swal-confirm',
+                cancelButton: 'swal-cancel'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    icon: "success"
-                });
                 location.reload();
             }
         });
+
         return true;
     }
 
@@ -277,69 +281,66 @@ function collision(head, array) {
     }
     return false;
 }
-
-// function generateFood() {
-//     let foodX, foodY;
-//     do {
-//         foodX = Math.floor(Math.random() * 17 + 1) * box;
-//         foodY = Math.floor(Math.random() * 15 + 3) * box;
-//     } while (isOnSnake(foodX, foodY) || isOnBomb(foodX, foodY) || (foodX === yellowFood?.x && foodY === yellowFood?.y) || (foodX === redFood?.x && foodY === redFood?.y));
-//     return { x: foodX, y: foodY };
-// }
-
-function generateFood() {
+// existingFoods[] generate food coordinates, ensuring the apples are not at the same position as any existing food items are pass in the array
+function generateFood(existingFoods=[]) {
     let foodX, foodY;
     do {
         foodX = Math.floor(Math.random() * 17 + 1) * box;
         foodY = Math.floor(Math.random() * 15 + 3) * box;
     } while (
-        isOnSnake(foodX, foodY) || 
+        isOnSnake(foodX, foodY) ||
         isOnBomb(foodX, foodY) ||
-        (foodX === yellowFood?.x && foodY === yellowFood?.y) || 
-        (foodX === redFood?.x && foodY === redFood?.y) ||
-        isNearBomb(foodX, foodY)
+        isNearBomb(foodX, foodY) ||
+        isNearSnake(foodX, foodY)||
+        existingFoods.some(food => food.x === foodX && food.y === foodY) // check the apples will not generate from the same spot
     );
     return { x: foodX, y: foodY };
 }
 
-// function generateBomb() {
-//     let bombX, bombY;
-//     do {
-//         bombX = Math.floor(Math.random() * 17 + 1) * box;
-//         bombY = Math.floor(Math.random() * 15 + 3) * box;
-//     } while (isOnSnake(bombX, bombY) || isOnBomb(bombX, bombY) || (bombX === yellowFood.x && bombY === yellowFood.y) || (bombX === redFood.x && bombY === redFood.y));
-//     return { x: bombX, y: bombY };
-// }
+
 function generateBomb() {
     let bombX, bombY;
     do {
         bombX = Math.floor(Math.random() * 17 + 1) * box;
         bombY = Math.floor(Math.random() * 15 + 3) * box;
     } while (
-        isOnSnake(bombX, bombY) || 
-        isOnBomb(bombX, bombY) || 
+        isOnSnake(bombX, bombY) ||
+        isOnBomb(bombX, bombY) ||
         isNearFood(bombX, bombY) ||
-        (bombX === yellowFood.x && bombY === yellowFood.y) || 
+        isNearSnake(bombX, bombY) ||
+        (bombX === yellowFood.x && bombY === yellowFood.y) ||
         (bombX === redFood.x && bombY === redFood.y)
     );
     return { x: bombX, y: bombY };
 }
 
-function isNearFood(x, y) {
-    const distanceToYellowFood = Math.abs(x - yellowFood.x) <= box && Math.abs(y - yellowFood.y) <= box;
-    const distanceToRedFood = Math.abs(x - redFood.x) <= box && Math.abs(y - redFood.y) <= box;
-    return distanceToYellowFood || distanceToRedFood;
-}
-
-function isNearBomb(x, y) {
-    for (let i = 0; i < bombs.length; i++) {
-        if (Math.abs(x - bombs[i].x) <= box && Math.abs(y - bombs[i].y) <= box) {
+function isNearSnake(x, y) {
+    for (let i = 0; i < snake.length; i++) {
+        if (euclideanDistance(x, y, snake[i].x, snake[i].y) <= box) {
             return true;
         }
     }
     return false;
 }
 
+function isNearFood(x, y) {
+    const distanceToYellowFood = euclideanDistance(x, y, yellowFood.x, yellowFood.y) <= box;
+    const distanceToRedFood = euclideanDistance(x, y, redFood.x, redFood.y) <= box;
+    return distanceToYellowFood || distanceToRedFood;
+}
+
+function isNearBomb(x, y) {
+    for (let i = 0; i < bombs.length; i++) {
+        if (euclideanDistance(x, y, bombs[i].x, bombs[i].y) <= box) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function euclideanDistance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+}
 
 function isCollisionWithFood(head) {
     return (
@@ -348,8 +349,9 @@ function isCollisionWithFood(head) {
     );
 }
 
-yellowFood = generateFood();
-redFood = generateFood();
+
+yellowFood = generateFood([]);
+redFood = generateFood([yellowFood]); //passing [yellowFood] to ensure it doesn't overlap with yellowFood
 bombs = [generateBomb(), generateBomb()];
 
 let game = setInterval(draw, 300);
