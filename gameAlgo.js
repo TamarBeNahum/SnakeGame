@@ -47,11 +47,12 @@ function draw() {
     drawSnake();
     drawFood();
     drawBombs();
-
+    
+    // over 10 points the food start moving and we calaulate the new path for each move
     if (score >= 10) {
         moveYellowFood();
         moveRedFood();
-        path = aStar({ x: snake[0].x, y: snake[0].y, g: 0, f: 0 }, yellowFood, redFood, 2, 3); // Update path each move
+        path = aStar({ x: snake[0].x, y: snake[0].y, g: 0, f: 0 }, yellowFood, redFood, 2, 3); 
     }
 
     ctx.fillStyle = "green";
