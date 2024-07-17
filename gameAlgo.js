@@ -1,3 +1,10 @@
+// Add this function at the top of your gameAlgo.js
+function startGame() {
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('gameContainer').style.display = 'block';
+    game = setInterval(draw, 300); // Start the game loop
+}
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 let gameEnded = false;
@@ -358,4 +365,4 @@ yellowFood = generateFood([]);
 redFood = generateFood([yellowFood]); //passing [yellowFood] to ensure it doesn't overlap with yellowFood
 bombs = [generateBomb(), generateBomb()];
 
-let game = setInterval(draw, 300);
+// let game = setInterval(draw, 300);

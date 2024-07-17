@@ -3,6 +3,8 @@ body {
     flex-direction: column;
     align-items: center;
     background-color: HoneyDew;
+    height: 100vh;
+    margin: 0;
 }
 canvas {
     border: 1px solid black;
@@ -21,4 +23,45 @@ canvas {
 }
 #gameCanvas {
     border: 1px solid black;
+}
+
+.welcome-title {
+    font-size: 24px; /* Slightly larger than the button text */
+    font-family: Verdana, sans-serif;
+    color: green;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.start-button {
+    font-size: 16px;
+    font-family: Verdana, sans-serif;
+    color: white;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.start-button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+.start-button:active {
+    background-color: #3e8e41;
+    transform: scale(0.98);
+}
+
+.upper-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align items to the start (top) */
+    width: 100%; /* Full width of the viewport */
+    text-align: center;
+    padding-top: 50px; /* Adjust the padding to position vertically */
 }
