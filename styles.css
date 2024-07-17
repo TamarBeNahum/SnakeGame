@@ -10,23 +10,24 @@ canvas {
     border: 1px solid black;
 }
 #title {
-    font-size: 30px;
-    font-family: Verdana;
+    font-size: 24px;
+    font-family: sans-serif;
     color: green;
     margin: 20px;
 }
 #score {
     font-size: 45px;
-    font-family: Verdana;
+    font-family: sans-serif;
     color: green;
     margin: 10px;
 }
 #gameCanvas {
-    border: 1px solid black;
+    border: 1px solid white;
+    border-radius: 10px; 
 }
 
 .welcome-title {
-    font-size: 24px; /* Slightly larger than the button text */
+    font-size: 24px;
     font-family: Verdana, sans-serif;
     color: green;
     margin-top: 20px;
