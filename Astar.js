@@ -49,7 +49,13 @@ function aStar(start, target1, target2, value1, value2) {
             // If the neighbor is not in the open list, add it and calculate its heuristic
             if (!inList(openList, neighbor)) {
                 gScoreIsBest = true;
-                neighbor.h = Math.min(heuristic(neighbor, target1, value1), heuristic(neighbor, target2, value2));
+                // Calculate the heuristic for both fruits and take the minimum
+                neighbor.h = Math.min(
+                    heuristic(neighbor, target1, value1), // Heuristic for yellow fruit
+                    heuristic(neighbor, target2, value2)  // Heuristic for red fruit
+                );
+                neighbor.g = gScore;
+                neighbor.f = neighbor.g + neighbor.h;
                 openList.push(neighbor);
             } else if (gScore < neighbor.g) { // If this path to the neighbor is better, use it
                 gScoreIsBest = true;
