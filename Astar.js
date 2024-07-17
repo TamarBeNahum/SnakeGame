@@ -92,7 +92,8 @@ function inList(list, node) {
     return false;
 }
 
-
+//heuristic - Euclidean distance between the current node and the target node,
+// divided by the value (which represents the score value of the target).
 function heuristic(node, target, value) {
     return Math.sqrt((node.x - target.x) ** 2 + (node.y - target.y) ** 2) / value;
 }
