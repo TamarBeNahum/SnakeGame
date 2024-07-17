@@ -126,6 +126,10 @@ function updateSnakePosition() {
         redFood = generateFood([yellowFood]);
         score += 3;
         path = []; // Reset path when food is eaten
+    } else if (collision(newHead, bombs)) { // Snake eats bomb
+        snake = snake.slice(0, Math.ceil(snake.length / 2)); // reduce snake's length in half
+        score = Math.floor(score / 2); // reduce score in half
+        bombs = bombs.filter(bomb => bomb.x !== snakeX || bomb.y !== snakeY); // Remove the bomb that was eaten
     } else {
         snake.pop();
     }
@@ -149,9 +153,9 @@ function addBombsBasedOnScore() {
 function checkGameOver(newHead) {
     if (
         newHead.x < 0 ||
-        newHead.x >= 18 * box ||
+        newHead.x >= 19 * box ||
         newHead.y < 0 ||
-        newHead.y >= 18 * box ||
+        newHead.y >= 19 * box ||
         collision(newHead, snake.slice(1)) ||
         collision(newHead, bombs)
     ) {
@@ -284,7 +288,7 @@ function collision(head, array) {
     return false;
 }
 // existingFoods[] handeling food coordinates, ensuring the apples are not at the same position as any existing food items are pass in the array
-function generateFood(existingFoods=[]) {
+function generateFood(existingFoods = []) {
     let foodX, foodY;
     do {
         foodX = Math.floor(Math.random() * 17 + 1) * box;
@@ -293,7 +297,7 @@ function generateFood(existingFoods=[]) {
         isOnSnake(foodX, foodY) ||
         isOnBomb(foodX, foodY) ||
         isNearBomb(foodX, foodY) ||
-        isNearSnake(foodX, foodY)||
+        isNearSnake(foodX, foodY) ||
         existingFoods.some(food => food.x === foodX && food.y === foodY) // check the apples will not generate from the same spot
     );
     return { x: foodX, y: foodY };
