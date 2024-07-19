@@ -7,39 +7,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <title>Snake Game with Moving Foods</title>
-    <style>
-        .swal-title {
-            font-size: 24px;
-            color: #1a237e;
-        }
-        .swal-html {
-            font-size: 18px;
-            color: #283593;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-        }
-        .swal-confirm {
-            background-color: #4caf50 !important;
-            color: white !important;
-            border-radius: 10px !important;
-            padding: 10px 20px !important;
-        }
-        .swal-cancel {
-            background-color: #f44336 !important;
-            color: white !important;
-            border-radius: 10px !important;
-            padding: 10px 20px !important;
-        }
-    </style>
 </head>
 <body>
     <div id="welcomeScreen" class="upper-center">
         <h1 class="welcome-title">Welcome to the Snake Game!</h1>
         <button class="start-button" onclick="startGame()">Start Game</button>
     </div>
-    <div id="gameContainer" style="display:none;">
-        <div id="title">Snake Game</div>
-        <canvas id="gameCanvas" width="608" height="608"></canvas>
+    <div id="gameWrapper" style="display:none;">
+        <div id="scores">
+            <div id="aiScore" class="score-left">AI Score: 0</div>
+            <div id="playerScore" class="score-right">Player Score: 0</div>
+        </div>
+        <div id="gameContainer">
+            <div id="title">Snake Game</div>
+            <canvas id="gameCanvas" width="704" height="704"></canvas>
+        </div>
     </div>
+    
     <script src="./Astar.js"></script>
     <script src="./gameAlgo.js"></script>
 </body>

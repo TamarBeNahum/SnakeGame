@@ -1,8 +1,10 @@
-// Add this function at the top of your gameAlgo.js
 function startGame() {
   document.getElementById('welcomeScreen').style.display = 'none';
-  document.getElementById('gameContainer').style.display = 'block';
+  document.getElementById('gameWrapper').style.display = 'flex';
   game = setInterval(draw, 300); // Start the game loop
+
+  // Show scores when the game starts
+  document.getElementById('scores').style.display = 'flex';
 }
 
 const canvas = document.getElementById("gameCanvas");
@@ -11,13 +13,23 @@ let gameEnded = false;
 let congratulationsLogged = false; // Add this flag
 
 const box = 32;
-let snake = [];
-snake[0] = { x: 9 * box, y: 10 * box }; // Starting point of the snake
+const rows = 22; // Increased number of rows
+const cols = 22; // Increased number of columns
+
+let aiSnake = [{ x: 9 * box, y: 10 * box }]; // AI Snake starting point
+let playerSnake = [{ x: 15 * box, y: 10 * box }]; // Player Snake starting point
 
 let yellowFood;
 let redFood;
 
-let score = 0;
+let playerScore = 0;
+let aiScore = 0;
+let score = 0; // Combined score - for the addBombsBasedOnScore
+
+// Constants for the scores
+const YELLOW_SCORE = 2;
+const RED_SCORE = 3;
+const WIN_SCORE = 50;
 
 let yellowMoveStep = 0;
 let redMoveStep = 0;
@@ -37,27 +49,45 @@ bombImg.src = "bomb.png";
 let tempScore; // Temporary variable to store score
 let scoreUpdated = true; // Flag to check if the score is updated
 
-let path = []; // Path for the snake
+let path = []; // Path for the AI snake
+
+// Add event listener for player snake controls
+document.addEventListener("keydown", direction);
+
+let d;
+function direction(event) {
+  if (event.keyCode == 37 && d != "RIGHT") {
+    d = "LEFT";
+  } else if (event.keyCode == 38 && d != "DOWN") {
+    d = "UP";
+  } else if (event.keyCode == 39 && d != "LEFT") {
+    d = "RIGHT";
+  } else if (event.keyCode == 40 && d != "UP") {
+    d = "DOWN";
+  }
+}
 
 function draw() {
   if (gameEnded) return;
 
   clearCanvas();
   drawBoard();
-  drawSnake();
+  drawSnake(aiSnake, "green");
+  drawSnake(playerSnake, "blue");
   drawFood();
   drawBombs();
-  // over 10 points the food start moving and we calaulate the new path for each move
+
   if (score >= 10) {
     moveYellowFood();
     moveRedFood();
-    path = aStar({ x: snake[0].x, y: snake[0].y, g: 0, f: 0 }, yellowFood, redFood, 2, 3);
-  }
 
-  ctx.fillStyle = "green";
-  ctx.font = "30px Verdana";
-  ctx.fillText(score, 2 * box, 1.6 * box);
-  updateSnakePosition();
+  }
+  path = aStar({ x: aiSnake[0].x, y: aiSnake[0].y, g: 0, f: 0 }, yellowFood, redFood, 2, 3);
+  document.getElementById("aiScore").innerText = `AI Score: ${aiScore}`;
+  document.getElementById("playerScore").innerText = `Player Score: ${playerScore}`;
+
+  updateAiSnakePosition();
+  updatePlayerSnakePosition();
 }
 
 function clearCanvas() {
@@ -66,9 +96,6 @@ function clearCanvas() {
 }
 
 function drawBoard() {
-  const rows = canvas.height / box;
-  const cols = canvas.width / box;
-
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       ctx.fillStyle = (row + col) % 2 === 0 ? "#A3D04A" : "#A9DA4D";
@@ -77,11 +104,11 @@ function drawBoard() {
   }
 }
 
-function drawSnake() {
+function drawSnake(snake, color) {
   for (let i = 0; i < snake.length; i++) {
-    ctx.fillStyle = i === 0 ? "green" : "white";
+    ctx.fillStyle = i === 0 ? color : "white";
     ctx.fillRect(snake[i].x, snake[i].y, box, box);
-    ctx.strokeStyle = "green";
+    ctx.strokeStyle = color;
     ctx.strokeRect(snake[i].x, snake[i].y, box, box);
   }
 
@@ -105,45 +132,95 @@ function drawBombs() {
   }
 }
 
-function updateSnakePosition() {
-  let snakeX = snake[0].x;
-  let snakeY = snake[0].y;
+function updateAiSnakePosition() {
 
-  if (score < 10 && path.length === 0) {
-    path = aStar({ x: snakeX, y: snakeY, g: 0, f: 0 }, yellowFood, redFood, 2, 3);
+  let nextStep = path.shift();
+  let snakeX = nextStep.x;
+  let snakeY = nextStep.y;
+
+
+  let newHead = { x: snakeX, y: snakeY };
+  if (checkGameOver(newHead, aiSnake, true, false)) {
+    return;
+  }
+  if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
+    yellowFood = generateFood([redFood]);
+    aiScore += YELLOW_SCORE;
+    score = playerScore + aiScore;
+  } else if (snakeX === redFood.x && snakeY === redFood.y) {
+    redFood = generateFood([yellowFood]);
+    aiScore += RED_SCORE;
+    score = playerScore + aiScore;
+  } else if (collision(newHead, bombs) && aiScore == 0) { // Snake eats bomb
+    checkGameOver(newHead, aiSnake, true, true)
+  } else if (collision(newHead, bombs) && aiScore != 0) {
+    aiSnake = reduceSnakeLength(aiSnake); // reduce snake's length in half // reduce snake's length in half
+    aiScore = Math.floor(aiScore / 2);
+    score = playerScore + aiScore; // reduce score in half
+    bombs = bombs.filter(bomb => bomb.x !== snakeX || bomb.y !== snakeY); // Remove the bomb that was eaten
+  } else {
+    aiSnake.pop();
   }
 
-  if (path.length > 0) {
-    let nextStep = path.shift();
-    snakeX = nextStep.x;
-    snakeY = nextStep.y;
+  aiSnake.unshift(newHead);
+
+  if (collision(newHead, playerSnake)) {
+    checkGameOver(newHead, aiSnake, true, false);
   }
+
+  addBombsBasedOnScore();
+}
+
+function updatePlayerSnakePosition() {
+  let snakeX = playerSnake[0].x;
+  let snakeY = playerSnake[0].y;
+
+  if (d === "LEFT") snakeX -= box;
+  if (d === "UP") snakeY -= box;
+  if (d === "RIGHT") snakeX += box;
+  if (d === "DOWN") snakeY += box;
 
   let newHead = { x: snakeX, y: snakeY };
 
-  if (checkGameOver(newHead)) {
+  if (checkGameOver(newHead, playerSnake, false, false)) {
     return;
   }
 
   if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
     yellowFood = generateFood([redFood]);
-    score += 2;
-    path = []; // Reset path when food is eaten
+    playerScore += YELLOW_SCORE;
+    score = playerScore + aiScore;
   } else if (snakeX === redFood.x && snakeY === redFood.y) {
     redFood = generateFood([yellowFood]);
-    score += 3;
-    path = []; // Reset path when food is eaten
-  } else if (collision(newHead, bombs)) { // Snake eats bomb
-    snake = snake.slice(0, Math.ceil(snake.length / 2)); // reduce snake's length in half
-    score = Math.floor(score / 2); // reduce score in half
+    playerScore += RED_SCORE;
+    score = playerScore + aiScore;
+  } else if (collision(newHead, bombs) && playerScore == 0) { // Snake eats bomb
+    checkGameOver(newHead, playerSnake, false, true)
+  } else if (collision(newHead, bombs) && playerScore != 0) {
+    playerSnake = reduceSnakeLength(playerSnake); // reduce snake's length in half
+    playerScore = Math.floor(playerScore / 2);
+    if(playerScore == 0){
+      playerSnake = playerSnake.slice(0, 0);
+    }
+    score = playerScore + aiScore; // reduce score in half
     bombs = bombs.filter(bomb => bomb.x !== snakeX || bomb.y !== snakeY); // Remove the bomb that was eaten
   } else {
-    snake.pop();
+    playerSnake.pop();
   }
 
-  snake.unshift(newHead);
+  playerSnake.unshift(newHead);
+
+  if (collision(newHead, aiSnake)) {
+    checkGameOver(newHead, playerSnake, false, false);
+  }
 
   addBombsBasedOnScore();
+}
+
+function reduceSnakeLength(snake) {
+  let newLength = Math.floor(snake.length / 2) ;
+  newLength = newLength > 0 ? newLength : 0; // Ensure the length doesn't drop below 1
+  return snake.slice(0, newLength);
 }
 
 function addBombsBasedOnScore() {
@@ -157,24 +234,25 @@ function addBombsBasedOnScore() {
   scoreUpdated = Math.floor(tempScore / 5) != Math.floor(score / 5);
 }
 
-function checkGameOver(newHead) {
+function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
   if (
     newHead.x < 0 ||
-    newHead.x >= 19 * box ||
+    newHead.x >= cols * box ||
     newHead.y < 0 ||
-    newHead.y >= 19 * box ||
+    newHead.y >= rows * box ||
+    isDiedFromBomb ||
     collision(newHead, snake.slice(1)) ||
-    collision(newHead, bombs)
+    collision(newHead, isAiSnake ? playerSnake : aiSnake)
   ) {
     clearInterval(game);
+    let message = collision(newHead, isAiSnake ? playerSnake : aiSnake) ? "התנגשות התרחשה!" : `${isAiSnake ? "AI" : "Player"} lost...${isAiSnake ? "Player" : "AI"} Wins!`;
+
     Swal.fire({
-      title: "Game Over",
-      html: "<b>You crushed!",
-      icon: "error",
+      title: message,
+      icon: "warning",
       background: "#f9f9f9",
-      showCancelButton: true,
-      confirmButtonText: "Play Again!",
-      cancelButtonText: "cancel",
+      showCancelButton: false,
+      confirmButtonText: "Start Again",
       customClass: {
         title: 'swal-title',
         htmlContainer: 'swal-html',
@@ -190,21 +268,21 @@ function checkGameOver(newHead) {
     return true;
   }
 
-  if (score >= 50 && !congratulationsLogged) {
+  if ((aiScore >= WIN_SCORE || playerScore >= WIN_SCORE) && !congratulationsLogged) {
     gameEnded = true;
     congratulationsLogged = true;
     setTimeout(function () {
       clearInterval(game);
-      console.log("Congratulations! You reached score 15.");
+      let winner = aiScore >= 50 ? "AI" : "Player";
+      console.log(`Congratulations! ${winner} reached score 50.`);
       setTimeout(function () {
         Swal.fire({
-          title: "🎉 Congratulations! 🎉",
-          html: "<b>You reached a score of 50!</b><br>Do you want to start a new game?",
+          title: `🎉 Congratulations ${winner}! 🎉`,
+          html: `<b>${winner} reached a score of 50!</b><br>Do you want to start a new game?`,
           icon: "success",
           background: "#f9f9f9",
-          showCancelButton: true,
-          confirmButtonText: "Yes, start a new game!",
-          cancelButtonText: "No, thanks!",
+          showCancelButton: false,
+          confirmButtonText: "start a new game",
           customClass: {
             title: 'swal-title',
             htmlContainer: 'swal-html',
@@ -231,7 +309,7 @@ function moveYellowFood() {
   let newX = yellowFood.x + yellowDirection * box;
 
   if (newX < 0) newX = 0;
-  if (newX >= 18 * box) newX = 18 * box - box;
+  if (newX >= (cols - 1) * box) newX = (cols - 1) * box;
 
   if (isOnSnake(newX, yellowFood.y) || isOnBomb(newX, yellowFood.y) || (newX === redFood.x && yellowFood.y === redFood.y)) {
     yellowMoveStep++;
@@ -250,7 +328,7 @@ function moveRedFood() {
   let newY = redFood.y + redDirection * box;
 
   if (newY < 0) newY = 0;
-  if (newY >= 18 * box) newY = 18 * box - box;
+  if (newY >= (rows - 1) * box) newY = (rows - 1) * box;
 
   if (isOnSnake(redFood.x, newY) || isOnBomb(redFood.x, newY) || (redFood.x === yellowFood.x && newY === yellowFood.y)) {
     redMoveStep++;
@@ -262,8 +340,13 @@ function moveRedFood() {
 }
 
 function isOnSnake(x, y) {
-  for (let i = 0; i < snake.length; i++) {
-    if (snake[i].x === x && snake[i].y === y) {
+  for (let i = 0; i < aiSnake.length; i++) {
+    if (aiSnake[i].x === x && aiSnake[i].y === y) {
+      return true;
+    }
+  }
+  for (let i = 0; i < playerSnake.length; i++) {
+    if (playerSnake[i].x === x && playerSnake[i].y === y) {
       return true;
     }
   }
@@ -294,12 +377,12 @@ function collision(head, array) {
   }
   return false;
 }
-// existingFoods[] handeling food coordinates, ensuring the apples are not at the same position as any existing food items are pass in the array
+
 function generateFood(existingFoods = []) {
   let foodX, foodY;
   do {
-    foodX = Math.floor(Math.random() * 17 + 1) * box;
-    foodY = Math.floor(Math.random() * 15 + 3) * box;
+    foodX = Math.floor(Math.random() * (cols - 1)) * box;
+    foodY = Math.floor(Math.random() * (rows - 1)) * box;
   } while (
     isOnSnake(foodX, foodY) ||
     isOnBomb(foodX, foodY) ||
@@ -314,8 +397,8 @@ function generateFood(existingFoods = []) {
 function generateBomb() {
   let bombX, bombY;
   do {
-    bombX = Math.floor(Math.random() * 17 + 1) * box;
-    bombY = Math.floor(Math.random() * 15 + 3) * box;
+    bombX = Math.floor(Math.random() * (cols - 1)) * box;
+    bombY = Math.floor(Math.random() * (rows - 1)) * box;
   } while (
     isOnSnake(bombX, bombY) ||
     isOnBomb(bombX, bombY) ||
@@ -324,29 +407,34 @@ function generateBomb() {
   );
   return { x: bombX, y: bombY };
 }
-//Checks whether less than radius 3 is found (after the fruits start moving)
+
 function isNearSnake(x, y) {
   if (score >= 10) {
-    for (let i = 0; i < snake.length; i++) {
-      if (euclideanDistance(x, y, snake[i].x, snake[i].y) <= 3 * box) {
+    for (let i = 0; i < aiSnake.length; i++) {
+      if (euclideanDistance(x, y, aiSnake[i].x, aiSnake[i].y) <= 3 * box) {
+        return true;
+      }
+    }
+    for (let i = 0; i < playerSnake.length; i++) {
+      if (euclideanDistance(x, y, playerSnake[i].x, playerSnake[i].y) <= 3 * box) {
         return true;
       }
     }
   }
   return false;
 }
-//Checks whether less than radius 3 is found (after the fruits start moving)
+
 function isNearFood(x, y) {
   if (score >= 10) {
     let distanceToYellowFood = euclideanDistance(x, y, yellowFood.x, yellowFood.y) <= 3 * box;
     let distanceToRedFood = euclideanDistance(x, y, redFood.x, redFood.y) <= 3 * box;
     return distanceToYellowFood || distanceToRedFood;
   }
-  else{
+  else {
     return false;
   }
 }
-//Checks whether less than radius 3 is found (after the fruits start moving)
+
 function isNearBomb(x, y) {
   if (score >= 10) {
     for (let i = 0; i < bombs.length; i++) {
@@ -362,15 +450,7 @@ function euclideanDistance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
 
-function isCollisionWithFood(head) {
-  return (
-    (head.x === yellowFood.x && head.y === yellowFood.y) ||
-    (head.x === redFood.x && head.y === redFood.y)
-  );
-}
-
 yellowFood = generateFood([]);
-redFood = generateFood([yellowFood]); //passing [yellowFood] to ensure it doesn't overlap with yellowFood
+redFood = generateFood([yellowFood]);
 bombs = [generateBomb(), generateBomb()];
 
-// let game = setInterval(draw, 300);
