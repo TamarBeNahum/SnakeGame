@@ -144,7 +144,7 @@ function drawSnake(snake, color, name) {
             );
             gradient.addColorStop(0, color);
             gradient.addColorStop(1, "dark" + color);
-
+ 
             ctx.fillStyle = gradient;
             ctx.beginPath();
             ctx.arc(snake[i].x + box / 2, snake[i].y + box / 2, box / 2, 0, Math.PI * 2, true);
