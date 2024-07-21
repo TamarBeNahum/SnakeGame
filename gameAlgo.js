@@ -44,7 +44,7 @@ let toalScore = 0; // Combined score for bomb generation logic
 // Score constants
 const YELLOW_SCORE = 2;
 const RED_SCORE = 3;
-const WIN_SCORE = 50;
+const WIN_SCORE = 10;
 
 // Variables for food movement
 let yellowMoveStep = 0;
