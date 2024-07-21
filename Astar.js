@@ -95,7 +95,7 @@ function inList(list, node) {
 
 // Heuristic function to estimate the cost to reach the target
 function heuristic(node, target) {
-    const dangerRadius = 64; // 2 blocks radius
+    const dangerRadius = 2*box; // 2 blocks radius
     const dangerWeight = 10; // Weight for danger
 
     // Calculate the Euclidean distance to the target
