@@ -64,7 +64,9 @@ yellowAppleImg.src = "yellowA.png";
 const redAppleImg = new Image();
 redAppleImg.src = "RedA.png";
 const bombImg = new Image();
-bombImg.src = "bomb.png";
+bombImg.src = "bomb1.png";
+bombImg.style.width = '70px'
+bombImg.style.height = '70px'
 
 let tempScore; // Temporary variable to store score
 let scoreUpdated = true; // Flag to check if the score is updated
@@ -131,10 +133,19 @@ function drawBoard() {
 }
 
 // Function to draw the snake on the canvas
+// Function to draw the snake on the canvas
 function drawSnake(snake, color, name) {
     for (let i = 0; i < snake.length; i++) {
         if (i === 0) { // Draw head with eyes
-            ctx.fillStyle = color;
+            // Gradient for the head
+            let gradient = ctx.createRadialGradient(
+                snake[i].x + box / 2, snake[i].y + box / 2, box / 6,
+                snake[i].x + box / 2, snake[i].y + box / 2, box / 2
+            );
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, "dark" + color);
+
+            ctx.fillStyle = gradient;
             ctx.beginPath();
             ctx.arc(snake[i].x + box / 2, snake[i].y + box / 2, box / 2, 0, Math.PI * 2, true);
             ctx.fill();
@@ -153,15 +164,22 @@ function drawSnake(snake, color, name) {
             ctx.arc(snake[i].x + (2 * box) / 3, snake[i].y + box / 3, box / 12, 0, Math.PI * 2, true);
             ctx.fill();
         } else { // Draw body segments
-            ctx.fillStyle = color;
+            // Gradient for the body
+            let gradient = ctx.createRadialGradient(
+                snake[i].x + box / 2, snake[i].y + box / 2, box / 6,
+                snake[i].x + box / 2, snake[i].y + box / 2, box / 2
+            );
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, "dark" + color);
+
+            ctx.fillStyle = gradient;
             ctx.beginPath();
             ctx.arc(snake[i].x + box / 2, snake[i].y + box / 2, box / 2, 0, Math.PI * 2, true);
             ctx.fill();
         }
-
-        // Removed the square outline
     }
 }
+
 
 // Function to draw food on the canvas
 function drawFood() {
