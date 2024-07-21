@@ -10,8 +10,24 @@ function startGame() {
 // Set up the canvas and context for drawing
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+let game;
 let gameEnded = false;
 let congratulationsLogged = false; // Flag to prevent multiple congratulations
+
+// Add event listener to canvas for stopping/resuming the game on click
+canvas.addEventListener("click", toggleGame);
+
+// Function to stop/resume the game
+function toggleGame() {
+  if (game) {
+    clearInterval(game);
+    game = null;
+    console.log("Game stopped.");
+  } else {
+    game = setInterval(draw, 300);
+    console.log("Game resumed.");
+  }
+}
 
 // Game constants and variables
 const box = 32; // Size of each grid cell
