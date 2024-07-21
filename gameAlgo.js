@@ -252,71 +252,90 @@ function addBombsBasedOnScore() {
 
 // Function to check if the game is over
 function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
-  if (
-      newHead.x < 0 ||
-      newHead.x >= cols * box ||
-      newHead.y < 0 ||
-      newHead.y >= rows * box ||
-      isDiedFromBomb ||
-      collision(newHead, snake.slice(1)) ||
-      collision(newHead, isAiSnake ? playerSnake : aiSnake)
-  ) {
-      clearInterval(game); // Stop the game loop
-      let message = collision(newHead, isAiSnake ? playerSnake : aiSnake) ? "התנגשות התרחשה!" : `${isAiSnake ? "AI" : "Player"} lost...${isAiSnake ? "Player" : "AI"} Wins!`;
+    if (
+        newHead.x < 0 ||
+        newHead.x >= cols * box ||
+        newHead.y < 0 ||
+        newHead.y >= rows * box ||
+        isDiedFromBomb ||
+        collision(newHead, snake.slice(1)) ||
+        collision(newHead, isAiSnake ? playerSnake : aiSnake)
+    ) {
 
-      Swal.fire({
-          title: message,
-          icon: "warning",
-          background: "#f9f9f9",
-          showCancelButton: false,
-          confirmButtonText: "Start Again",
-          customClass: {
-              title: 'swal-title',
-              htmlContainer: 'swal-html',
-              confirmButton: 'swal-confirm',
-              cancelButton: 'swal-cancel'
-          }
-      }).then((result) => {
-          if (result.isConfirmed) {
-              location.reload();
-          }
-      });
+        draw();
+        
+        // Show the game-over message after a slight delay to ensure rendering
+        setTimeout(() => {
+            let message = collision(newHead, isAiSnake ? playerSnake : aiSnake) ? "התנגשות התרחשה!" : `${isAiSnake ? "AI" : "Player"} lost...${isAiSnake ? "Player" : "AI"} Wins!`;
 
-      return true;
-  }
+            Swal.fire({
+                title: message,
+                icon: "warning",
+                background: "#f9f9f9",
+                showCancelButton: false,
+                confirmButtonText: "Start Again",
+                customClass: {
+                    title: 'swal-title',
+                    htmlContainer: 'swal-html',
+                    confirmButton: 'swal-confirm',
+                    cancelButton: 'swal-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload();
+                }
+            });
+        }, 100);
 
-  if ((aiScore >= WIN_SCORE || playerScore >= WIN_SCORE) && !congratulationsLogged) {
-      gameEnded = true;
-      congratulationsLogged = true;
-      setTimeout(function () {
-          clearInterval(game);
-          let winner = aiScore >= 50 ? "AI" : "Player";
-          console.log(`Congratulations! ${winner} reached score 50.`);
-          setTimeout(function () {
-              Swal.fire({
-                  title: `🎉 Congratulations ${winner}! 🎉`,
-                  html: `<b>${winner} reached a score of 50!</b><br>Do you want to start a new game?`,
-                  icon: "success",
-                  background: "#f9f9f9",
-                  showCancelButton: false,
-                  confirmButtonText: "start a new game",
-                  customClass: {
-                      title: 'swal-title',
-                      htmlContainer: 'swal-html',
-                      confirmButton: 'swal-confirm',
-                      cancelButton: 'swal-cancel'
-                  }
-              }).then((result) => {
-                  if (result.isConfirmed) {
-                      location.reload();
-                  }
-              });
-          }, 100);
-      }, 600);
-      return true;
-  }
-  return false;
+        return true;
+    }
+
+    if ((aiScore >= WIN_SCORE || playerScore >= WIN_SCORE) && !congratulationsLogged) {
+        gameEnded = true;
+        congratulationsLogged = true;
+
+        // Render the last frame manually
+        clearCanvas();
+        drawBoard();
+        drawSnake(aiSnake, "green");
+        drawSnake(playerSnake, "blue");
+        drawFood();
+        drawBombs();
+
+        document.getElementById("aiScore").innerText = `AI Score: ${aiScore}`;
+        document.getElementById("playerScore").innerText = `Player Score: ${playerScore}`;
+
+        // Show the congratulations message after a slight delay to ensure rendering
+        setTimeout(function () {
+            let winner = aiScore >= WIN_SCORE ? "AI" : "Player";
+            console.log(`Congratulations! ${winner} reached score ${WIN_SCORE}.`);
+            setTimeout(function () {
+                Swal.fire({
+                    title: `🎉 Congratulations ${winner}! 🎉`,
+                    html: `<b>${winner} reached a score of ${WIN_SCORE}!</b><br>Do you want to start a new game?`,
+                    icon: "success",
+                    background: "#f9f9f9",
+                    showCancelButton: false,
+                    confirmButtonText: "Start a new game",
+                    customClass: {
+                        title: 'swal-title',
+                        htmlContainer: 'swal-html',
+                        confirmButton: 'swal-confirm',
+                        cancelButton: 'swal-cancel'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            }, 100);
+        }, 100);
+
+        return true;
+    }
+    return false;
 }
+
 
 // Function to move yellow food
 function moveYellowFood() {
