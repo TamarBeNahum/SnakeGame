@@ -13,6 +13,8 @@ const ctx = canvas.getContext("2d");
 let game;
 let gameEnded = false;
 let congratulationsLogged = false; // Flag to prevent multiple congratulations
+let isCollision = false;
+
 
 // Add event listener to canvas for stopping/resuming the game on click
 canvas.addEventListener("click", toggleGame);
@@ -44,7 +46,7 @@ let toalScore = 0; // Combined score for bomb generation logic
 // Score constants
 const YELLOW_SCORE = 2;
 const RED_SCORE = 3;
-const WIN_SCORE = 10;
+const WIN_SCORE = 50;
 
 // Variables for food movement
 let yellowMoveStep = 0;
@@ -91,8 +93,8 @@ function draw() {
 
   clearCanvas();
   drawBoard();
-  drawSnake(aiSnake, "green");
-  drawSnake(playerSnake, "blue");
+  drawSnake(aiSnake, "green",'aiSnake');
+  drawSnake(playerSnake, "blue",'playerSnake');
   drawFood();
   drawBombs();
 
@@ -128,9 +130,15 @@ function drawBoard() {
 }
 
 // Function to draw the snake on the canvas
-function drawSnake(snake, color) {
+function drawSnake(snake, color,name) {
   for (let i = 0; i < snake.length; i++) {
-      ctx.fillStyle = i === 0 ? color : "white"; // Head is the main color, body is white
+    if(name == 'aiSnake'){
+        ctx.fillStyle = i === 0 ? color : "green"; // Head is the main color, body is white
+    }
+    else{
+        ctx.fillStyle = i === 0 ? color : "blue"; // Head is the main color, body is white
+    }
+     
       ctx.fillRect(snake[i].x, snake[i].y, box, box);
       ctx.strokeStyle = color;
       ctx.strokeRect(snake[i].x, snake[i].y, box, box);
@@ -268,6 +276,8 @@ function addBombsBasedOnScore() {
 
 // Function to check if the game is over
 function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
+    if (isCollision) return true;
+
     if (
         newHead.x < 0 ||
         newHead.x >= cols * box ||
@@ -277,10 +287,8 @@ function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
         collision(newHead, snake.slice(1)) ||
         collision(newHead, isAiSnake ? playerSnake : aiSnake)
     ) {
+        isCollision = true;
 
-        draw();
-        
-        // Show the game-over message after a slight delay to ensure rendering
         setTimeout(() => {
             let message = collision(newHead, isAiSnake ? playerSnake : aiSnake) ? "התנגשות התרחשה!" : `${isAiSnake ? "AI" : "Player"} lost...${isAiSnake ? "Player" : "AI"} Wins!`;
 
@@ -307,19 +315,17 @@ function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
     }
 
     if ((aiScore >= WIN_SCORE || playerScore >= WIN_SCORE) && !congratulationsLogged) {
-        gameEnded = true;
+        isCollision = true;
         congratulationsLogged = true;
-
-        // Render the last frame manually
-        clearCanvas();
-        drawBoard();
-        drawSnake(aiSnake, "green");
-        drawSnake(playerSnake, "blue");
-        drawFood();
-        drawBombs();
 
         document.getElementById("aiScore").innerText = `AI Score: ${aiScore}`;
         document.getElementById("playerScore").innerText = `Player Score: ${playerScore}`;
+        clearCanvas();
+        drawBoard();
+        drawSnake(aiSnake, "green","aiSnake");
+        drawSnake(playerSnake, "blue","playerSnake");
+        drawFood();
+        drawBombs();
 
         // Show the congratulations message after a slight delay to ensure rendering
         setTimeout(function () {
@@ -345,12 +351,13 @@ function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
                     }
                 });
             }, 100);
-        }, 100);
+        }, 600);
 
         return true;
     }
     return false;
 }
+
 
 
 // Function to move yellow food
