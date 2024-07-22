@@ -317,7 +317,7 @@ function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
         isCollision = true;
 
         setTimeout(() => {
-            let message = collision(newHead, isAiSnake ? playerSnake : aiSnake) ? "התנגשות התרחשה!" : `${isAiSnake ? "AI" : "Player"} lost...${isAiSnake ? "Player" : "AI"} Wins!`;
+            let message = collision(newHead, isAiSnake ? playerSnake : aiSnake) ? "!התנגשות התרחשה " : `${isAiSnake ? "AI" : "Player"} lost...${isAiSnake ? "Player" : "AI"} Wins!`;
 
             Swal.fire({
                 title: message,
