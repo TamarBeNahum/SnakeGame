@@ -121,7 +121,7 @@ function inList(list, node) {
  * @return       The minimum estimated cost to reach one of the targets.
  */
 function heuristic(node, target1, value1, target2, value2) {
-    const dangerRadius = 2 * box; // 2 blocks radius
+    const dangerRadius = 2 * box; // 2 blocks radius - for the danger zone (close to the playerSnake)
     const dangerWeight = 10; // Weight for danger
 
     // Calculate the Euclidean distance to the targets and adjust by the values associated
