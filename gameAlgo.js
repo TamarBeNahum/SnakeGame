@@ -19,19 +19,20 @@ let isCollision = false;
 // Add event listener to canvas for stopping/resuming the game on click
 canvas.addEventListener("click", toggleGame);
 
-// Function to stop/resume the game
+//Function to stop/resume the game
 function toggleGame() {
   if (game) {
-    clearInterval(game);
+    clearInterval(game); // Stop the game
     game = null;
     console.log("Game stopped.");
   } else {
-    game = setInterval(draw, 300);
+    game = setInterval(draw, 300); // Resume the game
     console.log("Game resumed.");
   }
 }
 
 // Game constants and variables
+
 const box = 32; // Size of each grid cell
 const rows = 22; // Number of rows in the grid
 const cols = 22; // Number of columns in the grid
@@ -41,7 +42,7 @@ let yellowFood;
 let redFood;
 let playerScore = 0;
 let aiScore = 0;
-let toalScore = 0; // Combined score for bomb generation logic
+let toalScore = 0; // Combined score 
 
 // Score constants
 const YELLOW_SCORE = 2;
@@ -75,35 +76,42 @@ let path = []; // Path for the AI snake
 // Add event listener for player snake controls
 document.addEventListener("keydown", direction);
 
+// Variable to store the direction of the player snake (LEFT, UP, RIGHT, DOWN)
 let d;
-// Function to handle player snake direction based on keyboard input
+
+/**
+ * Function to handle player snake direction based on keyboard input.
+ * @param {Event} event - The keyboard event.
+ */
 function direction(event) {
   if (event.keyCode == 37 && d != "RIGHT") {
-    d = "LEFT";
+    d = "LEFT"; // Move left
   } else if (event.keyCode == 38 && d != "DOWN") {
-    d = "UP";
+    d = "UP"; // Move up
   } else if (event.keyCode == 39 && d != "LEFT") {
-    d = "RIGHT";
+    d = "RIGHT"; // Move right
   } else if (event.keyCode == 40 && d != "UP") {
-    d = "DOWN";
+    d = "DOWN"; // Move down
   }
 }
 
-// Main draw function called repeatedly to update the game
+/**
+ * Main draw function called repeatedly to update the game.
+ */
 function draw() {
   if (gameEnded) return; // Stop drawing if the game has ended
 
-  clearCanvas();
+  clearCanvas(); 
   drawBoard();
   drawSnake(aiSnake, "green", "aiSnake");
-  drawSnake(playerSnake, "blue", "playerSnake");
-  drawFood();
+  drawSnake(playerSnake, "blue", "playerSnake"); 
+  drawFood(); 
   drawBombs();
 
   // Move food after a certain score
   if (toalScore >= 10) {
-    moveYellowFood();
-    moveRedFood();
+    moveYellowFood(); 
+    moveRedFood(); 
   }
 
   // Find path for AI snake using A* algorithm
@@ -111,25 +119,26 @@ function draw() {
     { x: aiSnake[0].x, y: aiSnake[0].y, g: 0, f: 0 },
     yellowFood,
     redFood,
-    2,
-    3
+    YELLOW_SCORE,
+    RED_SCORE
   );
-  document.getElementById("aiScore").innerText = `AI Score: ${aiScore}`;
-  document.getElementById(
-    "playerScore"
-  ).innerText = `Player Score: ${playerScore}`;
 
-  updateAiSnakePosition();
+  // Update scores on the screen
+  document.getElementById("aiScore").innerText = `AI Score: ${aiScore}`;
+  document.getElementById("playerScore").innerText = `Player Score: ${playerScore}`;
+
+  updateAiSnakePosition(); 
   updatePlayerSnakePosition();
 }
 
-// Function to clear the canvas
+//Function to clear the canvas
 function clearCanvas() {
   ctx.fillStyle = "#A3D04A"; // Set the background color
   ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill the canvas
 }
 
-// Function to draw the game board
+//Function to draw the game board.
+
 function drawBoard() {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -139,12 +148,16 @@ function drawBoard() {
   }
 }
 
-// Function to draw the snake on the canvas
+/**
+ * Function to draw the snake on the canvas.
+ * @param {Array} snake - The snake array representing the segments of the snake.
+ * @param {string} color - The color of the snake.
+ * @param {string} name - The name of the snake.
+ */
 function drawSnake(snake, color, name) {
   for (let i = 0; i < snake.length; i++) {
     if (i === 0) {
       // Draw head with eyes
-      // Gradient for the head
       let gradient = ctx.createRadialGradient(
         snake[i].x + box / 2,
         snake[i].y + box / 2,
@@ -210,7 +223,6 @@ function drawSnake(snake, color, name) {
       ctx.fill();
     } else {
       // Draw body segments
-      // Gradient for the body
       let gradient = ctx.createRadialGradient(
         snake[i].x + box / 2,
         snake[i].y + box / 2,
@@ -237,35 +249,28 @@ function drawSnake(snake, color, name) {
   }
 }
 
-// Function to draw food on the canvas
-function drawFood() {
-  // Draw yellow food on the canvas at its specified coordinates
-  ctx.drawImage(yellowAppleImg, yellowFood.x, yellowFood.y, box, box);
+//Function to draw food on the canvas.
 
-  // Draw red food on the canvas at its specified coordinates
-  ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box);
+function drawFood() {
+  ctx.drawImage(yellowAppleImg, yellowFood.x, yellowFood.y, box, box); // Draw yellow food
+  ctx.drawImage(redAppleImg, redFood.x, redFood.y, box, box); // Draw red food
 }
 
-// Function to draw bombs on the canvas
+//Function to draw bombs on the canvas.
 function drawBombs() {
-  // Iterate through each bomb in the bombs array
   for (let bomb of bombs) {
-    // Draw each bomb on the canvas at its specified coordinates
-    ctx.drawImage(bombImg, bomb.x, bomb.y, box, box);
+    ctx.drawImage(bombImg, bomb.x, bomb.y, box, box); // Draw each bomb
   }
 }
 
-// Function to update AI snake's position based on pathfinding
+//Function to update AI snake's position based on pathfinding.
 function updateAiSnakePosition() {
-  // Get the next step in the path for the AI snake
-  let nextStep = path.shift();
+  let nextStep = path.shift(); 
   let snakeX = nextStep.x;
   let snakeY = nextStep.y;
 
-  // Create a new head object with the updated coordinates
-  let newHead = { x: snakeX, y: snakeY };
+  let newHead = { x: snakeX, y: snakeY }; 
 
-  // If the game is over, stop the game
   if (checkGameOver(newHead, aiSnake, true, false)) {
     return;
   }
@@ -273,59 +278,53 @@ function updateAiSnakePosition() {
   // Check if the AI snake eats yellow food
   if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
     yellowFood = generateFood([redFood]); // Generate new yellow food
-    aiScore += YELLOW_SCORE; // Increase AI score
-    toalScore = playerScore + aiScore; // Update total score
+    aiScore += YELLOW_SCORE; 
+    toalScore = playerScore + aiScore; 
   }
   // Check if the AI snake eats red food
   else if (snakeX === redFood.x && snakeY === redFood.y) {
     redFood = generateFood([yellowFood]); // Generate new red food
-    aiScore += RED_SCORE; // Increase AI score
-    toalScore = playerScore + aiScore; // Update total score
+    aiScore += RED_SCORE;
+    toalScore = playerScore + aiScore;
   }
   // Check if the AI snake eats a bomb and has no score
   else if (collision(newHead, bombs) && aiScore == 0) {
-    checkGameOver(newHead, aiSnake, true, true); // End the game
+    checkGameOver(newHead, aiSnake, true, true);
   }
   // Check if the AI snake eats a bomb but has some score
   else if (collision(newHead, bombs) && aiScore != 0) {
-    aiSnake = reduceSnakeLength(aiSnake); // Reduce the snake's length
-    aiScore = Math.floor(aiScore / 2); // Halve the AI score
-    toalScore = playerScore + aiScore; // Update total score
+    aiSnake = reduceSnakeLength(aiSnake); 
+    aiScore = Math.floor(aiScore / 2); 
+    toalScore = playerScore + aiScore; 
     bombs = bombs.filter((bomb) => bomb.x !== snakeX || bomb.y !== snakeY); // Remove the bomb that was eaten
   }
-  // If no food or bomb is eaten, remove the last segment
+  // If no food or bomb is eaten, remove the last segment from aiSnake
   else {
-    aiSnake.pop(); // Remove last segment if no food eaten
+    aiSnake.pop(); 
   }
 
-  // Add new head to the snake
-  aiSnake.unshift(newHead);
+  aiSnake.unshift(newHead); // Add new head to the snake
 
-  // Check for collision with the player snake
   if (collision(newHead, playerSnake)) {
-    checkGameOver(newHead, aiSnake, true, false); // End the game if collision occurs
+    checkGameOver(newHead, aiSnake, true, false); 
   }
 
-  // Add bombs based on the current score
-  addBombsBasedOnScore();
+  addBombsBasedOnScore(); 
 }
 
-// Function to update player snake's position based on user input
+//Function to update player snake's position based on user input.
 function updatePlayerSnakePosition() {
-  // Get the current head position of the player snake
   let snakeX = playerSnake[0].x;
   let snakeY = playerSnake[0].y;
 
-  // Update the head position based on the direction 'd'
   if (d === "LEFT") snakeX -= box;
   if (d === "UP") snakeY -= box;
   if (d === "RIGHT") snakeX += box;
   if (d === "DOWN") snakeY += box;
 
-  // Create a new head object with the updated coordinates
-  let newHead = { x: snakeX, y: snakeY };
+  let newHead = { x: snakeX, y: snakeY }; 
 
-  // If the game is over, stop the game
+
   if (checkGameOver(newHead, playerSnake, false, false)) {
     return;
   }
@@ -333,108 +332,100 @@ function updatePlayerSnakePosition() {
   // Check if the player snake eats yellow food
   if (snakeX === yellowFood.x && snakeY === yellowFood.y) {
     yellowFood = generateFood([redFood]); // Generate new yellow food
-    playerScore += YELLOW_SCORE; // Increase player score
-    toalScore = playerScore + aiScore; // Update total score
+    playerScore += YELLOW_SCORE; 
+    toalScore = playerScore + aiScore;
   }
   // Check if the player snake eats red food
   else if (snakeX === redFood.x && snakeY === redFood.y) {
     redFood = generateFood([yellowFood]); // Generate new red food
-    playerScore += RED_SCORE; // Increase player score
-    toalScore = playerScore + aiScore; // Update total score
+    playerScore += RED_SCORE; 
+    toalScore = playerScore + aiScore; 
   }
   // Check if the player snake eats a bomb and has no score
   else if (collision(newHead, bombs) && playerScore == 0) {
-    checkGameOver(newHead, playerSnake, false, true); // End the game
+    checkGameOver(newHead, playerSnake, false, true); 
   }
   // Check if the player snake eats a bomb but has some score
   else if (collision(newHead, bombs) && playerScore != 0) {
-    playerSnake = reduceSnakeLength(playerSnake); // Reduce the snake's length
-    playerScore = Math.floor(playerScore / 2); // Halve the player score
-    // If after penalization the player has 0 points, reset the snake
+    playerSnake = reduceSnakeLength(playerSnake); 
+    playerScore = Math.floor(playerScore / 2); 
     if (playerScore == 0) {
-      playerSnake = playerSnake.slice(0, 0);
+      playerSnake = playerSnake.slice(0, 0); // Reset the snake if score is zero
     }
-    toalScore = playerScore + aiScore; // Update total score
+    toalScore = playerScore + aiScore; 
     bombs = bombs.filter((bomb) => bomb.x !== snakeX || bomb.y !== snakeY); // Remove the bomb that was eaten
   }
-  // If no food or bomb is eaten, remove the last segment
+  // If no food or bomb is eaten, remove the last segment of playerSnake
   else {
-    playerSnake.pop(); // Remove last segment if no food eaten
+    playerSnake.pop(); 
   }
 
-  // Add new head to the snake
-  playerSnake.unshift(newHead);
+  playerSnake.unshift(newHead); // Add new head to the snake
 
-  // Check for collision with the AI snake
+
   if (collision(newHead, aiSnake)) {
-    checkGameOver(newHead, playerSnake, false, false); // End the game if collision occurs
+    checkGameOver(newHead, playerSnake, false, false); 
   }
 
-  // Add bombs based on the current score
   addBombsBasedOnScore();
 }
 
-// Function to reduce the length of a snake by half
+/**
+ * Function to reduce the length of a snake by half.
+ * @param {Array} snake - The snake array representing the segments of the snake.
+ * @returns {Array} The updated snake array with reduced length.
+ */
 function reduceSnakeLength(snake) {
-  // Parameters:
-  // snake - An array representing the segments of the snake
-
-  // Calculate the new length of the snake by halving its current length
   let newLength = Math.floor(snake.length / 2);
-  // Ensure the new length is not less than 1 (a snake must have at least one segment)
   newLength = newLength > 0 ? newLength : 1;
-  // Return a new array containing the first 'newLength' segments of the original snake
   return snake.slice(0, newLength);
 }
 
-// Function to add bombs based on the current score
+//Function to add bombs based on the current score.
 function addBombsBasedOnScore() {
-  // Check if the total score is a multiple of 5 and if the score has been updated
+
   if (Math.floor(toalScore / 5) && scoreUpdated) {
-    // Add additional bomb when the total score is 30 or more
     if (toalScore >= 30) {
-      bombs.push(generateBomb()); // Generate and add a new bomb
+      bombs.push(generateBomb()); 
     }
-    bombs.push(generateBomb()); // Generate and add a new bomb
-    tempScore = toalScore; // Update temporary score to current total score
+    bombs.push(generateBomb());
+    tempScore = toalScore; 
   }
 
-  // Check if the score has updated to the next multiple of 5
-  scoreUpdated = Math.floor(tempScore / 5) != Math.floor(toalScore / 5);
+  // Check if the score has updated to the next multiple of 5 
   // Update scoreUpdated to true if the total score has moved to the next multiple of 5
+  scoreUpdated = Math.floor(tempScore / 5) != Math.floor(toalScore / 5);
+ 
 }
 
-// Function to check if the game is over
+/**
+ * Function to check if the game is over.
+ * @param {Object} newHead - The new head object with properties x and y.
+ * @param {Array} snake - The snake array representing the segments of the snake.
+ * @param {boolean} isAiSnake - A boolean indicating if the snake is the AI snake.
+ * @param {boolean} isDiedFromBomb - A boolean indicating if the snake died from a bomb.
+ * @returns {boolean} True if the game is over, false otherwise.
+ */
 function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
-  // Parameters:
-  // newHead - An object representing the new head of the snake with properties x and y
-  // snake - An array representing the segments of the snake
-  // isAiSnake - A boolean indicating whether the snake is the AI snake
-  // isDiedFromBomb - A boolean indicating whether the snake died from a bomb
-
-  // If a collision has already been detected, return true
   if (isCollision) return true;
 
-  // Check for various conditions that indicate the game is over
   if (
-    newHead.x < 0 || // Check if the new head is out of the left boundary
-    newHead.x >= cols * box || // Check if the new head is out of the right boundary
-    newHead.y < 0 || // Check if the new head is out of the top boundary
-    newHead.y >= rows * box || // Check if the new head is out of the bottom boundary
-    isDiedFromBomb || // Check if the snake died from a bomb
-    collision(newHead, snake.slice(1)) || // Check if the new head collided with the snake's own body
-    collision(newHead, isAiSnake ? playerSnake : aiSnake) // Check if the new head collided with the other snake
+    newHead.x < 0 ||
+    newHead.x >= cols * box ||
+    newHead.y < 0 ||
+    newHead.y >= rows * box ||
+    isDiedFromBomb ||
+    collision(newHead, snake.slice(1)) ||
+    collision(newHead, isAiSnake ? playerSnake : aiSnake)
   ) {
-    // Set the collision flag to true
     isCollision = true;
 
-    // Display a game over message after a short delay
     setTimeout(() => {
       let message = collision(newHead, isAiSnake ? playerSnake : aiSnake)
-        ? "!התנגשות התרחשה " // Display a collision message in Hebrew
+        ? "!התנגשות התרחשה "
         : `${isAiSnake ? "AI" : "Player"} lost...${
             isAiSnake ? "Player" : "AI"
-          } Wins!`; // Display a win/loss message
+          } Wins!`;
 
       Swal.fire({
         title: message,
@@ -450,27 +441,23 @@ function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
         },
       }).then((result) => {
         if (result.isConfirmed) {
-          location.reload(); // Reload the page to start a new game if the player confirms
+          location.reload(); // Reload the page
         }
       });
     }, 100);
 
-    return true; // Return true indicating the game is over
+    return true;
   }
 
-  // Check if either player has reached the winning score
   if (
     (aiScore >= WIN_SCORE || playerScore >= WIN_SCORE) &&
     !congratulationsLogged
   ) {
-    // Set the collision flag to true
     isCollision = true;
-    congratulationsLogged = true; // Prevent multiple congratulations messages
+    congratulationsLogged = true;
 
     document.getElementById("aiScore").innerText = `AI Score: ${aiScore}`;
-    document.getElementById(
-      "playerScore"
-    ).innerText = `Player Score: ${playerScore}`;
+    document.getElementById("playerScore").innerText = `Player Score: ${playerScore}`;
     clearCanvas();
     drawBoard();
     drawSnake(aiSnake, "green", "aiSnake");
@@ -478,7 +465,6 @@ function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
     drawFood();
     drawBombs();
 
-    // Show the congratulations message after a slight delay to ensure rendering
     setTimeout(function () {
       let winner = aiScore >= WIN_SCORE ? "AI" : "Player";
       console.log(`Congratulations! ${winner} reached score ${WIN_SCORE}.`);
@@ -498,273 +484,247 @@ function checkGameOver(newHead, snake, isAiSnake, isDiedFromBomb) {
           },
         }).then((result) => {
           if (result.isConfirmed) {
-            location.reload(); // Reload the page to start a new game if the player confirms
+            location.reload(); // Reload the page
           }
         });
       }, 100);
     }, 600);
 
-    return true; // Return true indicating the game is over
+    return true;
   }
 
-  return false; // Return false indicating the game is not over
+  return false;
 }
 
-// Function to move yellow food
+/**
+ * Function to move yellow food.
+ * The yellow food moves left and right within the game board.
+ */
 function moveYellowFood() {
-  // Check if it's time to change direction
   if (yellowMoveStep === 0 || yellowMoveStep === 2) {
     yellowDirection = -yellowDirection; // Change direction
     yellowMoveStep = 0;
   }
 
-  // Calculate new x-coordinate for the yellow food
   let newX = yellowFood.x + yellowDirection * box;
 
-  // Ensure the new x-coordinate is within the grid boundaries
   if (newX < 0) newX = 0;
   if (newX >= (cols - 1) * box) newX = (cols - 1) * box;
 
-  // Check if the new position is valid (not on a snake, bomb, or red food)
   if (
-    isOnSnake(newX, yellowFood.y) || // Check if the new position is on any snake
-    isOnBomb(newX, yellowFood.y) || // Check if the new position is on any bomb
-    (newX === redFood.x && yellowFood.y === redFood.y) // Check if the new position is the same as red food
+    isOnSnake(newX, yellowFood.y) || 
+    isOnBomb(newX, yellowFood.y) || 
+    (newX === redFood.x && yellowFood.y === redFood.y)
   ) {
-    yellowMoveStep++; // Increment move step to attempt next move
-    return; // Exit the function if the new position is not valid
+    yellowMoveStep++;
+    return;
   }
 
-  // Update the x-coordinate of the yellow food
   yellowFood.x = newX;
-  // Increment move step for the next move
-  yellowMoveStep++;
+  yellowMoveStep++; 
 }
 
-// Function to move red food
+/**
+ * Function to move red food.
+ * The red food moves up and down within the game board.
+ */
 function moveRedFood() {
-  // Check if it's time to change direction
   if (redMoveStep === 0 || redMoveStep === 2) {
     redDirection = -redDirection; // Change direction
     redMoveStep = 0;
   }
 
-  // Calculate new y-coordinate for the red food
-  let newY = redFood.y + redDirection * box;
+  let newY = redFood.y + redDirection * box; 
 
-  // Ensure the new y-coordinate is within the grid boundaries
   if (newY < 0) newY = 0;
   if (newY >= (rows - 1) * box) newY = (rows - 1) * box;
 
-  // Check if the new position is valid (not on a snake, bomb, or yellow food)
   if (
-    isOnSnake(redFood.x, newY) || // Check if the new position is on any snake
-    isOnBomb(redFood.x, newY) || // Check if the new position is on any bomb
-    (redFood.x === yellowFood.x && newY === yellowFood.y) // Check if the new position is the same as yellow food
+    isOnSnake(redFood.x, newY) || 
+    isOnBomb(redFood.x, newY) || 
+    (redFood.x === yellowFood.x && newY === yellowFood.y) 
   ) {
-    redMoveStep++; // Increment move step to attempt next move
-    return; // Exit the function if the new position is not valid
+    redMoveStep++; 
+    return; 
   }
 
-  // Update the y-coordinate of the red food
-  redFood.y = newY;
-  // Increment move step for the next move
-  redMoveStep++;
+  redFood.y = newY; 
+  redMoveStep++; 
 }
 
-// Function to check if a position is on a snake
+/**
+ * Function to check if a position is on a snake.
+ * @param {number} x - The x-coordinate of the position to check.
+ * @param {number} y - The y-coordinate of the position to check.
+ * @returns {boolean} True if the position is on a snake, false otherwise.
+ */
 function isOnSnake(x, y) {
-  // Parameters:
-  // x - The x-coordinate of the position to check
-  // y - The y-coordinate of the position to check
-
-  // Check if the position is on the AI snake
   for (let i = 0; i < aiSnake.length; i++) {
     if (aiSnake[i].x === x && aiSnake[i].y === y) {
-      return true; // Position is on the AI snake
+      return true; 
     }
   }
 
-  // Check if the position is on the player snake
   for (let i = 0; i < playerSnake.length; i++) {
     if (playerSnake[i].x === x && playerSnake[i].y === y) {
-      return true; // Position is on the player snake
+      return true; 
     }
   }
 
-  return false; // Position is not on any snake
+  return false; 
 }
 
-// Function to check for a collision between the head of the snake and any segment of an array (snake's own body, other snakes, or bombs)
+/**
+ * Function to check for a collision between the head of the snake and any segment of an array.
+ * @param {Object} head - The head object with properties x and y.
+ * @param {Array} array - The array representing the segments of the snake, other snakes, or bombs.
+ * @returns {boolean} True if there is a collision, false otherwise.
+ */
 function collision(head, array) {
-  // Parameters:
-  // head - An object representing the head of the snake, with properties x and y
-  // array - An array of objects representing the segments of the snake, other snakes, or bombs, each with properties x and y
-
-  // Iterate through each element in the array
   for (let i = 0; i < array.length; i++) {
-    // Check if the head's position matches the current element's position
     if (head.x === array[i].x && head.y === array[i].y) {
-      return true; // Collision detected
+      return true;
     }
   }
-  return false; // No collision detected
+  return false;
 }
 
-// Function to check if a position is on food
+/**
+ * Function to check if a position is on food.
+ * @param {number} x - The x-coordinate of the position to check.
+ * @param {number} y - The y-coordinate of the position to check.
+ * @returns {boolean} True if the position is on food, false otherwise.
+ */
 function isOnFood(x, y) {
-  // Parameters:
-  // x - The x-coordinate of the position to check
-  // y - The y-coordinate of the position to check
-
   return (
-    (redFood.x === x && redFood.y === y) || // Check if the position matches the red food's position
-    (yellowFood.x === x && yellowFood.y === y) // Check if the position matches the yellow food's position
+    (redFood.x === x && redFood.y === y) || 
+    (yellowFood.x === x && yellowFood.y === y) 
   );
 }
 
-// Function to check if a position is on a bomb
+/**
+ * Function to check if a position is on a bomb.
+ * @param {number} x - The x-coordinate of the position to check.
+ * @param {number} y - The y-coordinate of the position to check.
+ * @returns {boolean} True if the position is on a bomb, false otherwise.
+ */
 function isOnBomb(x, y) {
-  // Parameters:
-  // x - The x-coordinate of the position to check
-  // y - The y-coordinate of the position to check
-
-  // Iterate through all the bombs
   for (let i = 0; i < bombs.length; i++) {
-    // Check if the current bomb's position matches the given coordinates
     if (bombs[i].x === x && bombs[i].y === y) {
-      return true; // Position is on a bomb
+      return true; 
     }
   }
-  return false; // Position is not on a bomb
+  return false; 
 }
 
-// Function to generate new food position
+/**
+ * Function to generate new food position.
+ * @param {Array} existingFoods - An array of existing food positions to avoid placing new food on the same spot.
+ * @returns {Object} The new food position as an object with properties x and y.
+ */
 function generateFood(existingFoods = []) {
-  // Parameters:
-  // existingFoods - An array of existing food positions to avoid placing new food on the same spot
-
   let foodX, foodY;
   do {
-    // Generate random x and y coordinates for the new food
     foodX = Math.floor(Math.random() * (cols - 1)) * box;
     foodY = Math.floor(Math.random() * (rows - 1)) * box;
   } while (
-    // Ensure the new food position is not on a snake, bomb, or too close to other entities
-    isOnSnake(foodX, foodY) ||
-    isOnBomb(foodX, foodY) ||
-    isNearBomb(foodX, foodY) ||
+    isOnSnake(foodX, foodY) || 
+    isOnBomb(foodX, foodY) || 
+    isNearBomb(foodX, foodY) || 
     isNearSnake(foodX, foodY) ||
-    isNearFood(foodX, foodY) ||
-    // Check if the new food position matches any of the existing food positions
-    existingFoods.some((food) => food.x === foodX && food.y === foodY) // Avoid same spot
+    isNearFood(foodX, foodY) || 
+    existingFoods.some((food) => food.x === foodX && food.y === foodY) // Avoid placing on the same spot as existing food
   );
 
-  // Return the new food position as an object
   return { x: foodX, y: foodY };
 }
 
-// Function to generate new bomb position
+/**
+ * Function to generate new bomb position.
+ * @returns {Object} The new bomb position as an object with properties x and y.
+ */
 function generateBomb() {
-  // Local variables to store the generated bomb coordinates
   let bombX, bombY;
 
-  // Loop until a valid bomb position is found
   do {
-    // Generate random x and y coordinates for the new bomb
     bombX = Math.floor(Math.random() * (cols - 1)) * box;
     bombY = Math.floor(Math.random() * (rows - 1)) * box;
   } while (
-    // Ensure the new bomb position is not on a snake, another bomb, or food
-    isOnSnake(bombX, bombY) || // Check if the bomb position is on a snake
-    isOnBomb(bombX, bombY) || // Check if the bomb position is on another bomb
-    (bombX === yellowFood.x && bombY === yellowFood.y) || // Check if the bomb position is on the yellow food
-    (bombX === redFood.x && bombY === redFood.y) // Check if the bomb position is on the red food
+    isOnSnake(bombX, bombY) || 
+    isOnBomb(bombX, bombY) || 
+    (bombX === yellowFood.x && bombY === yellowFood.y) || 
+    (bombX === redFood.x && bombY === redFood.y) 
   );
 
-  // Return the new bomb position as an object
   return { x: bombX, y: bombY };
 }
 
-// Function to check if a position is near a snake
+/**
+ * Function to check if a position is near a snake.
+ * @param {number} x - The x-coordinate of the position to check.
+ * @param {number} y - The y-coordinate of the position to check.
+ * @returns {boolean} True if the position is near a snake, false otherwise.
+ */
 function isNearSnake(x, y) {
-  // Parameters:
-  // x - The x-coordinate of the position to check
-  // y - The y-coordinate of the position to check
-
-  // Check if the total score is 10 or more
   if (toalScore >= 10) {
-    // Check if the position is near any segment of the AI snake
     for (let i = 0; i < aiSnake.length; i++) {
-      // Calculate the Euclidean distance between the position and the current segment of the AI snake
       if (euclideanDistance(x, y, aiSnake[i].x, aiSnake[i].y) <= 3 * box) {
-        return true; // Position is near the AI snake
+        return true; 
       }
     }
-    // Check if the position is near any segment of the player snake
     for (let i = 0; i < playerSnake.length; i++) {
-      // Calculate the Euclidean distance between the position and the current segment of the player snake
-      if (
-        euclideanDistance(x, y, playerSnake[i].x, playerSnake[i].y) <=
-        3 * box
-      ) {
-        return true; // Position is near the player snake
+      if (euclideanDistance(x, y, playerSnake[i].x, playerSnake[i].y) <= 3 * box) {
+        return true;
       }
     }
   }
-  return false; // Position is not near any snake
+  return false; 
 }
 
-// Function to check if a position is near food
+/**
+ * Function to check if a position is near food.
+ * @param {number} x - The x-coordinate of the position to check.
+ * @param {number} y - The y-coordinate of the position to check.
+ * @returns {boolean} True if the position is near food, false otherwise.
+ */
 function isNearFood(x, y) {
-  // Parameters:
-  // x - The x-coordinate of the position to check
-  // y - The y-coordinate of the position to check
-
-  // Check if the total score is 10 or more
   if (toalScore >= 10) {
-    // Calculate the Euclidean distance between the position and the yellow food
     let distanceToYellowFood =
       euclideanDistance(x, y, yellowFood.x, yellowFood.y) <= 3 * box;
-    // Calculate the Euclidean distance between the position and the red food
     let distanceToRedFood =
       euclideanDistance(x, y, redFood.x, redFood.y) <= 3 * box;
-    // Return true if the position is near either the yellow food or the red food
     return distanceToYellowFood || distanceToRedFood;
   } else {
-    // Return false if the total score is less than 10
     return false;
   }
 }
 
-// Function to check if a position is near a bomb
+/**
+ * Function to check if a position is near a bomb.
+ * @param {number} x - The x-coordinate of the position to check.
+ * @param {number} y - The y-coordinate of the position to check.
+ * @returns {boolean} True if the position is near a bomb, false otherwise.
+ */
 function isNearBomb(x, y) {
-  // Parameters:
-  // x - The x-coordinate of the position to check
-  // y - The y-coordinate of the position to check
-
-  // Check if the total score is 10 or more
   if (toalScore >= 10) {
-    // Iterate through all the bombs
     for (let i = 0; i < bombs.length; i++) {
-      // Calculate the Euclidean distance between the position and the current bomb
       if (euclideanDistance(x, y, bombs[i].x, bombs[i].y) <= 3 * box) {
-        return true; // Position is near a bomb
+        return true; 
       }
     }
   }
-  return false; // Position is not near any bomb
+  return false; 
 }
 
-// Function to calculate Euclidean distance between two points
+/**
+ * Function to calculate Euclidean distance between two points.
+ * @param {number} x1 - The x-coordinate of the first point.
+ * @param {number} y1 - The y-coordinate of the first point.
+ * @param {number} x2 - The x-coordinate of the second point.
+ * @param {number} y2 - The y-coordinate of the second point.
+ * @returns {number} The Euclidean distance between the two points.
+ */
 function euclideanDistance(x1, y1, x2, y2) {
-  // Parameters:
-  // x1 - The x-coordinate of the first point
-  // y1 - The y-coordinate of the first point
-  // x2 - The x-coordinate of the second point
-  // y2 - The y-coordinate of the second point
-
-  // Calculate the Euclidean distance using the distance formula
   return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
 
