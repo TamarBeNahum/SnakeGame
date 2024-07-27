@@ -21,7 +21,7 @@ The game features both an AI-controlled snake and a player-controlled snake, eac
 
 ## Installation
 1. Clone the repository:
-    git clone https://github.com/yourusername/snake-game.git
+    git clone https://github.com/TamarBeNahum/SnakeGame.git
 2. Navigate to the project directory:
     cd snake-game
 3. Run the `index.html` file in your preferred browser to start the game. No additional installation is required.
